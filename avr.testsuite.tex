@@ -172,6 +172,46 @@
 }
 \preto\avr@test{\avr@test@fibonacci}
 
+\def\avr@test@BITOPS{%
+  \avr@test@setup{Bit Operations}%
+  \avr@instr@LDI{0}{\csuse{avr@r30}}{00111100}%
+  \avr@instr@LDI{1}{\csuse{avr@r31}}{00001111}%
+  \avr@instr@AND{2}{\csuse{avr@r30}}{\csuse{avr@r31}}%
+
+  \avr@instr@stepn{3}%
+  \avr@test@REG{r30}{00001100}
+
+  \avr@instr@ANDI{3}{\csuse{avr@r30}}{00001000}%
+  \avr@instr@stepn{1}%
+  \avr@test@REG{r30}{00001000}
+
+  \avr@instr@ORI{4}{\csuse{avr@r20}}{10101010}%
+  \avr@instr@stepn{1}%
+  \avr@test@REG{r20}{10101010}
+
+  \avr@instr@EOR{5}{\csuse{avr@r30}}{\csuse{avr@r20}}%
+  \avr@instr@TST{6}{\csuse{avr@r30}}%
+  \avr@instr@stepn{2}%
+  \avr@test@REG{r30}{10100010}
+}
+\preto\avr@test{\avr@test@BITOPS}
+
+\def\avr@test@SUBI{%
+  \avr@test@setup{SUBI}%
+  \avr@instr@LDI{0}{\csuse{avr@r30}}{00001111}%
+  \avr@instr@SUBI{1}{\csuse{avr@r30}}{00010000}%
+  \avr@instr@SBCI{2}{\csuse{avr@r30}}{00000001}%
+
+  \avr@instr@stepn{2}%
+  \avr@test@REG{r30}{11111111}
+  \avr@test@SREG{00000101}
+
+  \avr@instr@stepn{1}%
+  \avr@test@REG{r30}{11111101}
+  \avr@test@SREG{00000100}
+}
+\preto\avr@test{\avr@test@SUBI}
+
 %%% Local Variables: 
 %%% mode: latex
 %%% TeX-master: "avr.tex"
