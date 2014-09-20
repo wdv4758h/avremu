@@ -1,0 +1,178 @@
+%% This is the test suite for my avr Implementation
+\def\avr@test@setup#1{%
+  \typeout{---- Test: #1 ----}%
+  \typeout{-> Initialize the AVR}%
+  \avr@init%
+}
+
+\def\avr@test@SREG#1{% Tests SREG for value
+  \avr@sreg@get{\@@SREG}%
+  \expandafter\ifstrequal\expandafter{\@@SREG}{#1}{%Success
+    }{%
+    \avr@error{SREG unequal: #1 != \@@SREG}%
+  }%
+}
+
+\def\avr@test@REG#1#2{% Tests SREG for value
+  \avr@reg@get{\csuse{avr@#1}}{\@@REG}%
+  \expandafter\ifstrequal\expandafter{\@@REG}{#2}{%Success
+    }{%
+    \avr@error{REG unequal: #2 != \@@REG}%
+  }%
+}
+
+% Hook Macro for the tests
+\def\avr@test{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\avr@test@ADD{%
+  \def\avr@test@helper##1##2{%
+     \avr@test@setup{ADD: ##1+##2}%
+     \avr@instr@LDI{0}{\csuse{avr@r31}}{##1}%
+     \avr@instr@LDI{1}{\csuse{avr@r17}}{##2}%
+     \avr@instr@ADD{2}{\csuse{avr@r17}}{\csuse{avr@r31}}%
+     \avr@instr@stepn{3}%
+  }%
+  \avr@test@helper{00000000}{00000001}%
+  \avr@test@SREG{00000000}%
+  \avr@test@REG{r17}{00000001}%
+  % Test Zero Flag
+  \avr@test@helper{00000000}{00000000}%
+  \avr@test@SREG{00000010}%
+  \avr@test@REG{r17}{00000000}%
+  % Test Carry and Half Carry
+  \avr@test@helper{11111111}{00000010}%
+  \avr@test@SREG{00100001}%
+  \avr@test@REG{r17}{00000001}%
+  % Test V
+  \avr@test@helper{10000000}{10000000}%
+  \avr@test@REG{r17}{00000000}%
+  \avr@test@SREG{00011011}%
+}
+\appto\avr@test{\avr@test@ADD}
+
+\def\avr@test@ADC{%
+  \def\avr@test@helper##1##2##3##4{%
+     \avr@test@setup{ADD: (##1:##2) + (##3:##4)}%
+     \avr@instr@LDI{0}{\csuse{avr@r30}}{##1}%
+     \avr@instr@LDI{1}{\csuse{avr@r31}}{##2}%
+     \avr@instr@LDI{2}{\csuse{avr@r17}}{##3}%
+     \avr@instr@LDI{3}{\csuse{avr@r18}}{##4}%
+     \avr@instr@ADD{4}{\csuse{avr@r18}}{\csuse{avr@r31}}%
+     \avr@instr@ADC{5}{\csuse{avr@r17}}{\csuse{avr@r30}}%
+     \avr@instr@stepn{6}%
+  }%
+  \avr@test@helper{00000000}{10000001}{00000000}{10000000}%
+  \avr@test@REG{r17}{00000001}%
+  \avr@test@SREG{00000000}%
+
+  \avr@test@helper{00000011}{10000001}{00001100}{10000000}%
+  \avr@test@REG{r17}{00010000}%
+  \avr@test@SREG{00100000}%
+
+}
+\appto\avr@test{\avr@test@ADC}
+
+\def\avr@test@SUB{%
+  \def\avr@test@helper##1##2{%
+     \avr@test@setup{SUB: ##1 - ##2}%
+     \avr@instr@LDI{0}{\csuse{avr@r17}}{##1}%
+     \avr@instr@LDI{1}{\csuse{avr@r31}}{##2}%
+     \avr@instr@SUB{2}{\csuse{avr@r17}}{\csuse{avr@r31}}%
+     \avr@instr@stepn{3}%
+  }%
+  \avr@test@helper{00001111}{00000010}%
+  \avr@test@REG{r17}{00001101}%
+  \avr@test@SREG{00000000}%
+
+  \avr@test@helper{00001111}{00010000}%
+  \avr@test@REG{r17}{11111111}%
+  \avr@test@SREG{00000101}%
+}
+\appto\avr@test{\avr@test@SUB}
+
+\def\avr@test@SBC{%
+  \def\avr@test@helper##1##2##3##4{%
+     \avr@test@setup{SBC: (##1:##2) - (##3:##4)}%
+     \avr@instr@LDI{0}{\csuse{avr@r30}}{##3}%
+     \avr@instr@LDI{1}{\csuse{avr@r31}}{##4}%
+     \avr@instr@LDI{2}{\csuse{avr@r17}}{##1}%
+     \avr@instr@LDI{3}{\csuse{avr@r18}}{##2}%
+     \avr@instr@SUB{4}{\csuse{avr@r18}}{\csuse{avr@r31}}%
+     \avr@instr@SBC{5}{\csuse{avr@r17}}{\csuse{avr@r30}}%
+     \avr@instr@stepn{6}%
+  }%
+  \avr@test@helper{00000000}{10000001}{00000000}{10000001}%
+  \avr@test@REG{r17}{00000000}%
+  \avr@test@REG{r18}{00000000}%
+  \avr@test@SREG{00000010}%
+
+  \avr@test@helper{00000000}{00000000}{00000000}{00000001}%
+  \avr@test@REG{r17}{11111111}%
+  \avr@test@REG{r18}{11111111}%
+  \avr@test@SREG{00100101}%
+
+  \avr@test@helper{00000000}{10000000}{00000000}{00000001}%
+  \avr@test@REG{r17}{00000000}%
+  \avr@test@REG{r18}{01111111}%
+  \avr@test@SREG{00000010}%
+}
+\appto\avr@test{\avr@test@SBC}
+
+\def\avr@test@BRB{%
+  \def\avr@test@helper##1##2##3{%
+     \avr@test@setup{BRB: ##1+##2 => PC+2}%
+     \avr@instr@LDI{0}{\csuse{avr@r30}}{##1}%
+     \avr@instr@LDI{1}{\csuse{avr@r31}}{##2}%
+     \avr@instr@ADD{2}{\csuse{avr@r30}}{\csuse{avr@r31}}%
+     \@@BRB{3}{##3}{1}%
+     \avr@instr@LDI{4}{\csuse{avr@r31}}{11001100}%
+     \avr@instr@LDI{5}{\csuse{avr@r20}}{00000000}%
+     \avr@instr@stepn{5}%
+  }%
+  % Check for cleared flag
+  \def\@@BRB{\avr@instr@BRBC}
+
+  \avr@test@helper{10000000}{10000000}{000}%
+  \avr@test@REG{r31}{11001100}%
+
+  \avr@test@helper{10000000}{00000001}{000}%
+  \avr@test@REG{r31}{00000001}%
+
+  % Check for SET flag
+  \def\@@BRB{\avr@instr@BRBS}
+
+  \avr@test@helper{10000000}{10000000}{000}%
+  \avr@test@REG{r31}{10000000}%
+
+  \avr@test@helper{10000000}{10000001}{100}%
+  \avr@test@REG{r31}{10000001}%
+}
+\preto\avr@test{\avr@test@BRB}
+
+\def\avr@test@fibonacci{%
+  \avr@test@setup{Fibonacci -- fib(8)=21}%
+  \avr@instr@LDI{0}{\csuse{avr@r30}}{00000001}%
+  \avr@instr@LDI{1}{\csuse{avr@r31}}{00000001}%
+  \avr@instr@LDI{2}{\csuse{avr@r20}}{00000101}%
+  \avr@instr@LDI{3}{\csuse{avr@r21}}{00000001}%
+  % tmp = x
+  \avr@instr@MOV{4}{\csuse{avr@r29}}{\csuse{avr@r30}}%
+  % x = x + y
+  \avr@instr@ADD{5}{\csuse{avr@r30}}{\csuse{avr@r31}}%
+  % y = tmp
+  \avr@instr@MOV{6}{\csuse{avr@r31}}{\csuse{avr@r29}}%
+  % i--
+  \avr@instr@SUB{7}{\csuse{avr@r20}}{\csuse{avr@r21}}%
+  \avr@instr@BRPL{8}{-5}
+  \avr@instr@BREAK{9}
+
+  \avr@instr@stepn{100}%
+  \avr@test@REG{r30}{00010101}
+}
+\preto\avr@test{\avr@test@fibonacci}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "avr.tex"
+%%% End: 
