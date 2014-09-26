@@ -380,6 +380,17 @@
 }
 \preto\avr@test{\avr@test@ROR}
 
+\begin{filecontents*}{empty-main.c}
+int main() { }
+\end{filecontents*}
+
+\def\avr@test@emptymain{%
+  \avrloadc{empty-main.c}
+  \avr@instr@stepn{3}
+}
+\preto\avr@test{\avr@test@emptymain}
+
+
 %%% Local Variables: 
 %%% mode: latex
 %%% TeX-master: "avr.tex"

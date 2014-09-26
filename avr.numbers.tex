@@ -319,6 +319,43 @@
   \fi%
 }
 
+\csdef{avr@hex@0}{0000}
+\csdef{avr@hex@1}{0001}
+\csdef{avr@hex@2}{0010}
+\csdef{avr@hex@3}{0011}
+\csdef{avr@hex@4}{0100}
+\csdef{avr@hex@5}{0101}
+\csdef{avr@hex@6}{0110}
+\csdef{avr@hex@7}{0111}
+\csdef{avr@hex@8}{1000}
+\csdef{avr@hex@9}{1001}
+\csdef{avr@hex@A}{1010}
+\csdef{avr@hex@B}{1011}
+\csdef{avr@hex@C}{1100}
+\csdef{avr@hex@D}{1101}
+\csdef{avr@hex@E}{1110}
+\csdef{avr@hex@F}{1111}
+\csdef{avr@hex@a}{1010}
+\csdef{avr@hex@b}{1011}
+\csdef{avr@hex@c}{1100}
+\csdef{avr@hex@d}{1101}
+\csdef{avr@hex@e}{1110}
+\csdef{avr@hex@f}{1111}
+
+% Hexstring to Bitstring: hexstring, \result macro
+\def\avr@hex@tobin#1#2{%
+  \def\avr@hex@helper##1##2\@nnil{%
+    \xdef#2{#2\csuse{avr@hex@##1}}%
+    \ifx&##2&\else%
+      \avr@hex@helper ##2\@nnil%
+    \fi%
+  }%
+  \def#2{}%
+  \edef\@tempa{#1}\relax%
+  \expandafter \avr@hex@helper \@tempa \@nnil%
+}
+
+
 \def\avr@count@overflow#1{%
   \def\avr@count@overflow@flag{0}%
   \ifnum #1 < 0%
