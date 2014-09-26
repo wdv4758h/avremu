@@ -62,6 +62,7 @@
 }
 
 \newcommand{\avrloadc}[2][-Os -mmcu=atmega8]{%
+  \avr@init%
   \avr@compile{#2}{#1}%
   \avr@ihex@load{#2.hex}%
 }

@@ -103,15 +103,22 @@
   \xdef#2{\@tmpa\@tmpa\@tmpa\@tmpa\@tmpa\@tmpa\@tmpa\@tmpa#1}%
 }
 
-\def\avr@bin@wtb@helper#1#2#3#4#5#6#7#8#9\@nnil{%
-  #9%
+\def\avr@bin@word@low#1#2{%
+  \edef\@tempa{#1}%
+  \edef#2{\expandafter\avr@bin@word@low@helper\@tempa\@nnil}%
+}
+\def\avr@bin@word@low@helper#1#2#3#4#5#6#7#8#9\@nnil{#9}
+
+\def\avr@bin@word@high#1#2{%
+  \edef\@tempa{#1}%
+  \edef#2{\expandafter\avr@bin@word@high@helper\@tempa\@nnil}%
+}
+\def\avr@bin@word@high@helper#1#2#3#4#5#6#7#8#9\@nnil{%
+  #1#2#3#4#5#6#7#8%
 }
 
 % \avr@bin@wtb bs:word, \result = ((uint8_t) bs)
-\def\avr@bin@wtb#1#2{%
-  \edef\@tempa{#1}%
-  \edef#2{\expandafter\avr@bin@wtb@helper\@tempa\@nnil}%
-}
+\def\avr@bin@wtb{\avr@bin@word@low}
 
 % \avr@bin@shiftleft bs:(byte|word), count, \result, \carry
 % -> \result = bs << count; \carry = (bs >> count) & 1

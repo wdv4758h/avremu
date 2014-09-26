@@ -87,7 +87,7 @@
 
   \avr@test@helper{00001111}{00010000}%
   \avr@test@REG{r17}{11111111}%
-  \avr@test@SREG{00000101}%
+  \avr@test@SREG{00010101}%
 }
 \appto\avr@test{\avr@test@SUB}
 
@@ -110,7 +110,7 @@
   \avr@test@helper{00000000}{00000000}{00000000}{00000001}%
   \avr@test@REG{r17}{11111111}%
   \avr@test@REG{r18}{11111111}%
-  \avr@test@SREG{00100101}%
+  \avr@test@SREG{00110101}%
 
   \avr@test@helper{00000000}{10000000}{00000000}{00000001}%
   \avr@test@REG{r17}{00000000}%
@@ -204,11 +204,11 @@
 
   \avr@instr@stepn{2}%
   \avr@test@REG{r30}{11111111}
-  \avr@test@SREG{00000101}
+  \avr@test@SREG{00010101}
 
   \avr@instr@stepn{1}%
   \avr@test@REG{r30}{11111101}
-  \avr@test@SREG{00000100}
+  \avr@test@SREG{00010100}
 }
 \preto\avr@test{\avr@test@SUBI}
 
@@ -279,7 +279,7 @@
 
   \avr@instr@stepn{2}%
   \avr@test@REG{r20}{11111111}
-  \avr@test@SREG{00100101}
+  \avr@test@SREG{00110101}
 
   \avr@instr@stepn{1}%
   \avr@test@REG{r20}{00000001}
@@ -296,7 +296,7 @@
 
   \avr@instr@stepn{2}%
   \avr@test@REG{r20}{11111110}
-  \avr@test@SREG{00000101}
+  \avr@test@SREG{00010101}
 
   \avr@instr@stepn{1}%
   \avr@test@REG{r20}{00000001}
@@ -336,7 +336,7 @@
 
   \avr@instr@stepn{2}%
   \avr@test@REG{r20}{11000100}
-  \avr@test@SREG{00000101}
+  \avr@test@SREG{00010101}
 }
 \preto\avr@test{\avr@test@ASR}
 
@@ -372,7 +372,7 @@
 
   \avr@instr@stepn{1}%
   \avr@test@REG{r20}{10000000}
-  \avr@test@SREG{00011100}
+  \avr@test@SREG{00001100}
 
   \avr@instr@stepn{1}%
   \avr@test@REG{r20}{01000000}
@@ -385,10 +385,63 @@ int main() { }
 \end{filecontents*}
 
 \def\avr@test@emptymain{%
+  \avr@test@setup{Empty Main Function}%
   \avrloadc{empty-main.c}
-  \avr@instr@stepn{3}
+  \avr@instr@stepn{50}
 }
 \preto\avr@test{\avr@test@emptymain}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{filecontents*}{sum-rec.c}
+#include <avr/io.h>
+
+char sum(char n) {
+  if (n <= 1) {
+    return n;
+  }
+  return n + sum(n-1);
+}
+
+int main() { 
+  UDR = sum(4);
+  asm volatile ("break");
+}
+\end{filecontents*}
+
+\def\avr@test@sumRec{%
+  \avr@test@setup{Summing Recursive}%
+  \avrloadc{sum-rec.c}
+  \avr@instr@stepn{1000}
+  \avr@test@REG{r24}{00001010}
+}
+
+\preto\avr@test{\avr@test@sumRec}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{filecontents*}{fibonacci-rec.c}
+#include <avr/io.h>
+
+char fib(char n) {
+  if (n <= 1) {
+    return 1;
+  }
+  return fib(n-1) + fib(n-2);
+}
+
+int main() { 
+  UDR = fib(5);
+  asm volatile ("break");
+}
+\end{filecontents*}
+
+\def\avr@test@fibRec{%
+  \avr@test@setup{Fibonacci Recursive}%
+  \avrloadc{fibonacci-rec.c}
+  \avr@instr@stepn{1000}
+  \avr@test@REG{r24}{00001000}
+}
+\preto\avr@test{\avr@test@fibRec}
+
 
 
 %%% Local Variables: 

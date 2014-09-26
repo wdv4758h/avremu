@@ -5,6 +5,7 @@
   \avr@flag@init%
   \avr@reg@init%
   \avr@pc@init%
+  \avr@stack@init%
 }
 
 \newcount\avr@accA
@@ -94,8 +95,8 @@
 
 \def\avr@flags@update#1{%
   % Negate Flag
-  \avr@bin@msb@get{#1}{\@@X}%
-  \avr@flag@set N \@@X%
+  \avr@bin@msb@get{#1}{\@@N}%
+  \avr@flag@set N \@@N%
   % Zero Flag
   \avr@bin@tocount{#1}{\avr@count@tmpa}%
   \ifnum \avr@count@tmpa = 0%
@@ -105,8 +106,8 @@
   \fi%
   % Signed Flag
   \avr@flag@get V \@@V%
-  \edef\@@tmp{\avr@bit@xor \@@X \@@V}%
-  \avr@flag@set S \@@V%
+  \edef\@@tmp{\avr@bit@xor \@@N \@@V}%
+  \avr@flag@set S \@@tmp%
 }
 
 %% Registers
@@ -211,6 +212,47 @@
   \csxdef{avr@code@#2}{#1}%
 }
 %% RAM
+\newcount\avr@stackptr
+\def\avr@stack@init{
+  \avr@stackptr=0%
+}
+
+\def\avr@stack@SPL@get#1{%
+  \avr@count@tobin@w{\avr@stackptr}{\@@stack}%
+  \avr@bin@word@low{\@@stack}{#1}%
+}
+\def\avr@stack@SPH@get#1{%
+  \avr@count@tobin@w{\avr@stackptr}{\@@stack}%
+  \avr@bin@word@high{\@@stack}{#1}%
+}
+
+\def\avr@stack@SPL@set#1{%
+  \avr@count@tobin@w{\avr@stackptr}{\@@stack}%
+  \avr@bin@word@high{\@@stack}{\@@high}%
+  \avr@bin@tocount{\@@high #1}{\avr@stackptr}%
+  \avr@debug{  SP=\the\avr@stackptr}
+}
+
+\def\avr@stack@SPH@set#1{%
+  \avr@count@tobin@w{\avr@stackptr}{\@@stack}%
+  \avr@bin@word@low{\@@stack}{\@@low}%
+  \avr@bin@tocount{#1\@@low}{\avr@stackptr}%
+  \avr@debug{  SP=\the\avr@stackptr}
+}
+
+\def\avr@mem@set#1#2{% Bitstring, Address (as number)
+  \avr@debug{  MEM W *#2=#1}%
+  \csxdef{avr@mem@#2}{#1}%
+}
+
+\def\avr@mem@get#1#2{% Address (as number), Target Macro
+  \ifcsdef{avr@mem@#1}{%
+    \edef#2{\csuse{avr@mem@#1}}%
+  }{%
+    \edef#2{00000000}%
+  }%
+  \avr@debug{  MEM R *#1==#2}%
+}
 
 
 %%% Local Variables: 
