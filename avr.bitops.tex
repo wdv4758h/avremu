@@ -78,6 +78,24 @@
   \expandafter\avr@bin@getbit@helper\@tmpa\@nnil%
 }
 
+\def\avr@bin@setbit#1#2#3#4{%
+  \def\@tempa{}%
+  \avr@count@tmpa=7%
+  \advance\avr@count@tmpa by -#2\relax%
+  \def\avr@bin@setbit@helper##1##2\@nnil{%
+    \ifnum \avr@count@tmpa = 0%
+      \xdef\@tempa{\@tempa #3##2}%
+    \else%
+      \advance\avr@count@tmpa by -1\relax%
+      \xdef\@tempa{\@tempa ##1}%
+      \avr@bin@setbit@helper##2\@nnil%
+    \fi%
+  }%
+  \edef\@tmpb{#1}%
+  \expandafter\avr@bin@setbit@helper\@tmpb\@nnil%
+  \edef#4{\@tempa}
+}
+
 % \avr@bin@btw bs:byte, \result -> \result = 00000000+bs
 \def\avr@bin@btw#1#2{\xdef#2{00000000#1}}
 \def\avr@bin@btw@sign#1#2{%
