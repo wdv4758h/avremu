@@ -16,7 +16,7 @@
   %\avr@reg@get{\csuse{avr@r28}}{\@@B}%
   %\avr@reg@get{\csuse{avr@r29}}{\@@C}%
   %\avr@debug{{r24=\@@A} {r28=\@@B} {r29=\@@C}}%
-  \avr@debug{\avr@instr@current}%
+  %\avr@debug{\avr@instr@current}%
   % Dispatch Instruction by prefix
   \expandafter\avr@instr@dispatch\avr@instr@current\@nnil%
   \relax%
@@ -381,14 +381,82 @@
   \avr@pc@inc%
 }
 
-% LDI -- Load Immediate Value
-\def\avr@instr@LDI{\avr@instr@gen@regconst{1110}}
-\def\avr@instr@SER#1#2{\avr@instr@gen@regconst{1110}{#1}{#2}{11111111}}
-\csdef{avr@instr@1110}#1#2#3#4#5#6#7#8#9\@nnil{%
-  \avr@debug{LDI - \%1#5#6#7#8 <- #1#2#3#4#9}%
-  \avr@reg@set{#1#2#3#4#9}{1#5#6#7#8}%
+% ADIW
+\def\avr@instr@ADIW#1#2#3{% Reg, K
+  \edef\@@K{#3}%
+  \avr@bin@msb@del{\@@K}{\@@K}{\@@a}%
+  \avr@bin@msb@del{\@@K}{\@@K}{\@@b}%
+  \avr@code@set{10010110\@@a\@@b#2\@@K}{#1}%
+}
+
+\csdef{avr@instr@10010110}#1#2#3#4#5\@nnil{%
+  \def\@@K{00#1#2#5}%
+  \avr@regw@get{11#3#4}{\avr@Rd}%
+  \avr@debug{ADIW #3#4 + \@@K}%
+  \avr@bin@tocount{\avr@Rd}{\avr@accA}%
+  \avr@bin@tocount{\@@K}{\avr@accB}%
+  \advance \avr@accA by \avr@accB\relax%
+  \avr@count@overflow{\avr@accA}%
+  \avr@count@tobin@w{\avr@accA}{\avr@Rx}%
+  % Calculate the Flags
+  \let\@@not=\avr@bit@negate%
+  \let\@@and=\avr@bit@and%
+  \let\@@xor=\avr@bit@xor%
+  \avr@bin@msb@get{\avr@Rx}{\@@X}%
+  \avr@bin@msb@get{\avr@Rd}{\@@D}%
+  % Zero Flag
+  \ifdefstring{\avr@Rx}{0000000000000000}{%
+    \avr@flag@set Z 1%
+  }{%
+    \avr@flag@set Z 0%
+  }%
+  \avr@flag@set C {\@@and {\@@not \@@X} \@@D}%
+  \avr@flag@set N \@@X%
+  \avr@flag@set V {\@@and {\@@not \@@D} \@@X}%
+  \avr@flag@set S {\@@xor \@@X {\@@and {\@@not \@@D} \@@X}}%
+  % Set the Result
+  \avr@regw@set{\avr@Rx}{11#3#4}%
   \avr@pc@inc%
 }
+
+% Substract Immediate From Word
+\def\avr@instr@SBIW#1#2#3{% Reg, K
+  \edef\@@K{#3}%
+  \avr@bin@msb@del{\@@K}{\@@K}{\@@a}%
+  \avr@bin@msb@del{\@@K}{\@@K}{\@@b}%
+  \avr@code@set{10010111\@@a\@@b#2\@@K}{#1}%
+}
+
+\csdef{avr@instr@10010111}#1#2#3#4#5\@nnil{%
+  \def\@@K{00#1#2#5}%
+  \avr@regw@get{11#3#4}{\avr@Rd}%
+  \avr@debug{SBIW #3#4 + \@@K}%
+  \avr@bin@tocount{\avr@Rd}{\avr@accA}%
+  \avr@bin@tocount{\@@K}{\avr@accB}%
+  \advance \avr@accA by -\avr@accB\relax%
+  \avr@count@overflow{\avr@accA}%
+  \avr@count@tobin@w{\avr@accA}{\avr@Rx}%
+  % Calculate the Flags
+  \let\@@not=\avr@bit@negate%
+  \let\@@and=\avr@bit@and%
+  \let\@@xor=\avr@bit@xor%
+  \avr@bin@msb@get{\avr@Rx}{\@@X}%
+  \avr@bin@msb@get{\avr@Rd}{\@@D}%
+  % Zero Flag
+  \ifdefstring{\avr@Rx}{0000000000000000}{%
+    \avr@flag@set Z 1%
+  }{%
+    \avr@flag@set Z 0%
+  }%
+  \avr@flag@set C {\@@and \@@X {\@@not \@@D}}%
+  \avr@flag@set N \@@X%
+  \avr@flag@set V {\@@and {\@@not \@@X} \@@D}%
+  \avr@flag@set S {\@@xor \@@X {\@@and {\@@not \@@D} \@@X}}%
+  % Set the Result
+  \avr@regw@set{\avr@Rx}{11#3#4}%
+  \avr@pc@inc%
+}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Branch Instructions
@@ -937,6 +1005,15 @@
   \avr@pc@inc%
 }
 
+% LDI -- Load Immediate Value
+\def\avr@instr@LDI{\avr@instr@gen@regconst{1110}}
+\def\avr@instr@SER#1#2{\avr@instr@gen@regconst{1110}{#1}{#2}{11111111}}
+\csdef{avr@instr@1110}#1#2#3#4#5#6#7#8#9\@nnil{%
+  \avr@debug{LDI - \%1#5#6#7#8 <- #1#2#3#4#9}%
+  \avr@reg@set{#1#2#3#4#9}{1#5#6#7#8}%
+  \avr@pc@inc%
+}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Misc
@@ -1159,7 +1236,28 @@
   \avr@skip@instr@eq{\avr@Rd}{\avr@Rr}%
 }
 
+% Skip if Bit in IO-Register is Set (or not)
+\def\avr@instr@SBIC#1#2#3{\avr@code@set{10011001#2#3}{#1}}
+\def\avr@instr@SBIS#1#2#3{\avr@code@set{10011011#2#3}{#1}}
+\csdef{avr@instr@10011011}{%
+  \def\@@required{1}% 1 if if set
+  \avr@SBI@helper%
+}
+\csdef{avr@instr@10011001}{%
+  \def\@@required{0}% 0 if if set
+  \avr@SBI@helper%
+}
+\def\avr@SBI@helper#1#2#3#4#5#6\@nnil{%
+  \avr@io@get{0#1#2#3#4#5}{\avr@Rr}%
+  \avr@bin@tocount{00000#6}{\avr@count@tmpa}%
+  \edef\@@bit{\the\avr@count@tmpa}%
+  \avr@bin@getbit{\avr@Rr}{\@@bit}{\@@found}%
+  \avr@debug{SBI[SC] Skip iff \avr@Rr:\@@bit(\@@found) == \@@required}%
+  \avr@skip@instr@eq{\@@required}{\@@found}%
+}
 
+
+% Arithmetic Shift Right
 \def\avr@instr@ASR#1#2{\avr@code@set{1001010#20101}{#1}}
 \csdef{avr@instr@1001010:0101}#1\@nnil{%
   \avr@reg@get{#1}{\avr@Rr}%

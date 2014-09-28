@@ -490,6 +490,48 @@
 }
 \preto\avr@test{\avr@test@CPSE}
 
+\def\avr@test@SBIC{%
+  \avr@test@setup{SBIC}%
+  \avr@instr@LDI{0}{\csuse{avr@r20}}{11110000}%
+  \avr@instr@OUT{1}{001111}{\csuse{avr@r20}}%
+  \avr@instr@SBIC{2}{01111}{111}% Skip never
+  \avr@instr@LDI{3}{\csuse{avr@r21}}{00001111}%
+  \avr@instr@NOP{4}%
+
+  \avr@instr@stepn{5}%
+  \avr@test@REG{r21}{00001111}
+}
+\preto\avr@test{\avr@test@SBIC}
+
+\def\avr@test@ADIW{%
+  \avr@test@setup{SBIC}%
+  \avr@instr@LDI{0}{\csuse{avr@r31}}{11111111}%
+  \avr@instr@LDI{1}{\csuse{avr@r30}}{11000000}%
+  \avr@instr@ADIW{2}{11}{111111}%
+  \avr@instr@ADIW{3}{11}{000001}%
+  \avr@instr@SBIW{4}{11}{000010}%
+
+
+
+  \avr@instr@stepn{3}%
+  \avr@test@REG{r30}{11111111}
+  \avr@test@REG{r31}{11111111}
+  \avr@test@SREG{00010100}
+
+  \avr@instr@stepn{1}%
+  \avr@test@REG{r30}{00000000}
+  \avr@test@REG{r31}{00000000}
+  \avr@test@SREG{00000011}
+
+  \avr@instr@stepn{1}%
+  \avr@test@REG{r30}{11111110}
+  \avr@test@REG{r31}{11111111}
+  \avr@test@SREG{00000101}
+
+}
+\preto\avr@test{\avr@test@ADIW}
+
+
 
 %%% Local Variables: 
 %%% mode: latex

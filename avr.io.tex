@@ -7,6 +7,13 @@
 }
 
 % OUT
+\def\avr@instr@OUT#1#2#3{% A, R
+  \def\@@A{#2}
+   \avr@bin@msb@del{\@@A}{\@@A}{\@@a}%
+   \avr@bin@msb@del{\@@A}{\@@A}{\@@b}%
+   \avr@code@set{10111\@@a\@@b#3\@@A}{#1}%
+}
+
 \csdef{avr@instr@10111}#1#2#3#4#5#6#7#8\@nnil{%
   \def\@@A{#1#2#8}%
   \avr@reg@get{#3#4#5#6#7}{\avr@Rr}%
@@ -29,8 +36,8 @@
 }
 % #1=Addr, #2=\result
 \def\avr@io@get#1#2{%
-  \ifcsdef{avr@io@#2@get}{%
-    \csuse{avr@io@#2@get}{#2}%
+  \ifcsdef{avr@io@#1@get}{%
+    \csuse{avr@io@#1@get}{#2}%
   }{%
     \avr@io@get@default{#1}{#2}%
   }%
@@ -38,6 +45,10 @@
 
 \def\avr@io@set@default#1#2{%
   \avr@error{IO Port #2 is not defined (OUT #1)}%
+}
+
+\def\avr@io@get@default#1#2{%
+  \avr@error{IO Port #1 is not defined (IN)}%
 }
 
 \csdef{avr@io@111111@set}#1{%
@@ -55,6 +66,14 @@
   \xdef\avr@UDR{\avr@UDR \@@char}%
 }
 
+% SPDR
+\csdef{avr@io@001111@set}#1{%
+  \csdef{avr@io@001111}{#1}%
+}
+
+\csdef{avr@io@001111@get}#1{%
+  \xdef#1{\csuse{avr@io@001111}}%
+}
 
 
 %%% Local Variables: 
