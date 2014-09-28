@@ -544,14 +544,8 @@
 }
 
 % RCALL
-\csdef{avr@instr@1101}#1\@nnil{
-  \avr@count@tobin@w{\the\avr@pc}{\@@pc}%
-  \avr@instr@rjump@dec{#1}{\avr@count@tmpa}%
-  \avr@reg@get{\csuse{avr@r24}}{\@@A}%
-  \avr@reg@get{\csuse{avr@r25}}{\@@B}%
-  \avr@reg@get{\csuse{avr@r26}}{\@@C}%
-  \avr@debug{RCALL \the\avr@count@tmpa {r24:\@@A} {r25:\@@B} {r26:\@@C}}%
-  \avr@pc@add{\avr@count@tmpa}%
+\def\avr@CALL@helper#1{%
+  \edef\@@pc{#1}%
   \avr@bin@word@low{\@@pc}{\@@low}%
   \avr@bin@word@high{\@@pc}{\@@high}%
   \avr@mem@set{\@@low}{\the\avr@stackptr}%
@@ -560,6 +554,41 @@
   \advance\avr@stackptr by -1\relax%
   \avr@pc@inc%
   \avr@debug{  done}%
+}
+\csdef{avr@instr@1101}#1\@nnil{
+  \avr@count@tobin@w{\the\avr@pc}{\@@pc}%
+  \avr@instr@rjump@dec{#1}{\avr@count@tmpa}%
+  \avr@reg@get{\csuse{avr@r24}}{\@@A}%
+  \avr@reg@get{\csuse{avr@r25}}{\@@B}%
+  \avr@reg@get{\csuse{avr@r26}}{\@@C}%
+  \avr@debug{ICALL \the\avr@count@tmpa {r24:\@@A} {r25:\@@B} {r26:\@@C}}%
+  \avr@CALL@helper{\@@pc}%
+  \avr@pc@add{\avr@count@tmpa}%
+}
+
+\def\avr@instr@ICALL#1{\avr@code@set{1001010100001001}{#1}}
+\csdef{avr@instr@1001010100001001}\@nnil{
+  \avr@count@tobin@w{\the\avr@pc}{\@@pc}%
+  \avr@regw@get{\csuse{avr@Z}}{\@@addr}
+  \avr@bin@tocount{\@@addr}{\avr@addr}%
+  \avr@reg@get{\csuse{avr@r24}}{\@@A}%
+  \avr@reg@get{\csuse{avr@r25}}{\@@B}%
+  \avr@reg@get{\csuse{avr@r26}}{\@@C}%
+  \avr@debug{ICALL \the\avr@addr {r24:\@@A} {r25:\@@B} {r26:\@@C}}%
+  \avr@CALL@helper{\@@pc}%
+  \avr@pc=\avr@addr
+}
+
+\def\avr@instr@IJMP#1{\avr@code@set{1001010000001001}{#1}}
+\csdef{avr@instr@1001010000001001}\@nnil{
+  \avr@count@tobin@w{\the\avr@pc}{\@@pc}%
+  \avr@regw@get{Z}{\@@addr}
+  \avr@bin@tocount{\@@addr}{\avr@addr}%
+  \avr@reg@get{\csuse{avr@r24}}{\@@A}%
+  \avr@reg@get{\csuse{avr@r25}}{\@@B}%
+  \avr@reg@get{\csuse{avr@r26}}{\@@C}%
+  \avr@debug{IJMP \the\avr@addr {r24:\@@A} {r25:\@@B} {r26:\@@C}}%
+  \avr@pc=\avr@addr
 }
 
 % RET
