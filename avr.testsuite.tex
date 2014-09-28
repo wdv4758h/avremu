@@ -388,70 +388,6 @@
 }
 \preto\avr@test{\avr@test@ROR}
 
-\begin{filecontents*}{empty-main.c}
-int main() {   
-  asm volatile ("break");
-}
-\end{filecontents*}
-
-\def\avr@test@emptymain{%
-  \avr@test@setup{Empty Main Function}%
-  \avrloadc{empty-main.c}
-  \avr@instr@stepn{50}
-}
-\preto\avr@test{\avr@test@emptymain}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{filecontents*}{sum-rec.c}
-#include <avr/io.h>
-
-char sum(char n) {
-  if (n <= 1) {
-    return n;
-  }
-  return n + sum(n-1);
-}
-
-int main() { 
-  UDR = sum(4);
-  asm volatile ("break");
-}
-\end{filecontents*}
-
-\def\avr@test@sumRec{%
-  \avr@test@setup{Summing Recursive}%
-  \avrloadc{sum-rec.c}
-  \avr@instr@stepn{1000}
-  \avr@test@REG{r24}{00001010}
-}
-
-\preto\avr@test{\avr@test@sumRec}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{filecontents*}{fibonacci-rec.c}
-#include <avr/io.h>
-
-char fib(char n) {
-  if (n <= 1) {
-    return 1;
-  }
-  return fib(n-1) + fib(n-2);
-}
-
-int main() { 
-  UDR = fib(5);
-  asm volatile ("break");
-}
-\end{filecontents*}
-
-\def\avr@test@fibRec{%
-  \avr@test@setup{Fibonacci Recursive}%
-  \avrloadc{fibonacci-rec.c}
-  \avr@instr@stepn{1000}
-  \avr@test@REG{r24}{00001000}
-}
-\preto\avr@test{\avr@test@fibRec}
-
 
 \def\avr@test@LDX{%
   \avr@test@setup{LDX}%
@@ -500,32 +436,6 @@ int main() {
 
 }
 \preto\avr@test{\avr@test@STZ}
-
-\begin{filecontents*}{complex-memory.c}
-#include <avr/io.h>
-
-volatile char foo[30];
-
-int main() { 
-  foo[0] = 23;
-  foo[1] = 42;
-  foo[2] = foo[0] + foo[1];
-
-  asm volatile ("break");
-}
-\end{filecontents*}
-
-\def\avr@test@complexMemory{%
-  \avr@test@setup{Complex Memory Operations}%
-  \avrloadc{complex-memory.c}
-  \avr@instr@stepn{1000}
-
-  \avr@test@MEM{96}{00010111} % 23
-  \avr@test@MEM{97}{00101010} % 42
-  \avr@test@MEM{98}{01000001} % 65
-}
-\preto\avr@test{\avr@test@complexMemory}
-
 
 %%% Local Variables: 
 %%% mode: latex

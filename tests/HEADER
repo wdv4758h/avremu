@@ -1,0 +1,17 @@
+\documentclass{article}
+\usepackage{etoolbox}
+\usepackage{tabularx}
+
+\makeatletter
+\errorcontextlines=23
+
+\input{../avr.numbers}
+\input{../avr.binary}
+\input{../avr.bitops}
+\input{../avr.memory}
+\input{../avr.instr}
+\input{../avr.io}
+\input{../avr.testsuite}
+
+\begin{document}
+\makeatletter
