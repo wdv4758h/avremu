@@ -111,7 +111,11 @@ do_test()
 	if [ "$actual_exit_value" -ne 0 ]; then
 		error "   Actual exit value does not match the expected one."
 		error "   expected 0, got $actual_exit_value"
-        tail -n 10 $file.output | sed 's/^/   /'
+        if [ x"$V" = x"1" ]; then
+            cat $file.output | sed 's/^/   /'
+        else
+            tail -n 10 $file.output | sed 's/^/   /'
+        fi
 		test_failed=1
 	fi
 

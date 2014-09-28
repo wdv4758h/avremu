@@ -6,6 +6,8 @@
   \avr@reg@init%
   \avr@pc@init%
   \avr@stack@init%
+  \avr@mem@init{1024}%
+  \avr@io@init%
 }
 
 \newcount\avr@accA
@@ -51,6 +53,31 @@
     r31:\avr@reg@get{11111}{\@tempa}:=  '\@tempa' \\
   \end{tabular}
 }
+
+\def\avr@dump{%
+  \avr@sreg@get{\@@X} \avr@debug{SREG::='\@@X' (ITHS VNZC)}
+  \def\avr@dump@reg##1##2{%
+    \avr@reg@get{\csuse{avr@##1}}{\@@X}%
+    \avr@bin@tocount{\@@X}{\avr@count@tmpa}%
+    \edef##2{##1=\the\avr@count@tmpa}%
+  }%
+  \def\avr@dump@row##1##2##3##4{%
+    \avr@dump@reg{##1}{\@@A}%
+    \avr@dump@reg{##2}{\@@B}%
+    \avr@dump@reg{##3}{\@@C}%
+    \avr@dump@reg{##4}{\@@D}%
+    \avr@debug{(\@@A)    (\@@B)    (\@@C)    (\@@D)}%
+  }%
+  \avr@dump@row{r0}{r1}{r2}{r3}%
+  \avr@dump@row{r4}{r5}{r6}{r7}%
+  \avr@dump@row{r8}{r9}{r10}{r11}%
+  \avr@dump@row{r12}{r13}{r14}{r15}%
+  \avr@dump@row{r16}{r17}{r18}{r19}%
+  \avr@dump@row{r20}{r21}{r22}{r23}%
+  \avr@dump@row{r24}{r25}{r26}{r27}%
+  \avr@dump@row{r28}{r29}{r30}{r31}%
+}
+
 
 %% Status Register && Flags
 \def\avr@flag@set#1#2{% Register Name, Value \in 0,1
@@ -226,6 +253,10 @@
   \edef#1{\csuse{avr@code@\the\avr@pc}}%
 }
 
+\def\avr@code@load#1#2{% Result Macro
+  \edef#2{\csuse{avr@code@#1}}%
+}
+
 \def\avr@code@set#1#2{% OpString (16 Bit), Number
   \csxdef{avr@code@#2}{#1}%
 }
@@ -258,6 +289,20 @@
   \avr@debug{  SP=\the\avr@stackptr}
 }
 
+\def\avr@mem@init#1{%
+  \avr@count@tmpa = #1\relax
+  \def\avr@mem@init@helper{%
+    \ifnum \avr@count@tmpa > 0
+       \csxdef{avr@mem@\the\avr@count@tmpa}{00000000}%
+       \advance \avr@count@tmpa by -1\relax%
+    \else%
+       \let \avr@mem@init@helper \relax%
+    \fi%
+    \avr@mem@init@helper%
+  }%
+  \avr@mem@init@helper%
+}
+
 \def\avr@mem@set#1#2{% Bitstring, Address (as number)
   \ifnum #2 < 96 % 0x60
      % FIXME
@@ -266,6 +311,7 @@
   \avr@debug{  MEM W *#2=#1}%
   \csxdef{avr@mem@#2}{#1}%
 }
+
 
 \def\avr@mem@get#1#2{% Address (as number), Target Macro
   \ifnum #1 < 96 % 0x60

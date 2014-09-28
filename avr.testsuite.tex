@@ -29,6 +29,13 @@
   }%
 }
 
+\def\avr@test@UDR#1{% Tests UDR output
+  \ifdefstring{\avr@UDR}{#1}{%Success
+    }{%
+    \avr@error{UDR unequal: #1 != \avr@UDR}%
+  }%
+}
+
 % Hook Macro for the tests
 \def\avr@test{}
 
@@ -432,10 +439,43 @@
   \avr@instr@stepn{2}%
   \avr@test@MEM{258}{00000000}
   \avr@test@MEM{257}{00000000}
-
-
 }
 \preto\avr@test{\avr@test@STZ}
+
+\def\avr@test@SWAP{%
+  \avr@test@setup{SWAP}%
+  \avr@instr@LDI{0}{\csuse{avr@r20}}{00001001}%
+  \avr@instr@SWAP{1}{\csuse{avr@r20}}%
+
+  \avr@instr@stepn{2}%
+  \avr@test@REG{r20}{10010000}
+}
+\preto\avr@test{\avr@test@SWAP}
+
+\def\avr@test@LDSS{%
+  \avr@test@setup{LDS - STS}%
+  \avr@instr@LDI{0}{\csuse{avr@r20}}{00001001}%
+  \avr@instr@STSS{1}{\csuse{avr@r20}}{1101001}%
+  \avr@instr@LDSS{2}{\csuse{avr@r21}}{1101001}%
+
+  \avr@instr@stepn{3}%
+  \avr@test@REG{r21}{00001001}
+}
+\preto\avr@test{\avr@test@LDSS}
+
+\def\avr@test@LDSS{%
+  \avr@test@setup{LDS - STS (long)}%
+  \avr@instr@LDI{0}{\csuse{avr@r20}}{00001001}%
+  \avr@instr@STS{1}{\csuse{avr@r20}}{0000000011111111}%
+  \avr@instr@LDS{3}{\csuse{avr@r21}}{0000000011111111}%
+  \avr@instr@SBRC{5}{\csuse{avr@r0}}{011}% Skip always
+  \avr@instr@LDS{6}{\csuse{avr@r20}}{0000000011110000}%
+  \avr@instr@NOP{8}%
+
+  \avr@instr@stepn{5}%
+  \avr@test@REG{r21}{00001001}
+}
+\preto\avr@test{\avr@test@LDSS}
 
 %%% Local Variables: 
 %%% mode: latex

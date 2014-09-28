@@ -2,6 +2,10 @@
 %% The IO Subsystem
 %%
 
+\def\avr@io@init{%
+  \def\avr@UDR{}%
+}
+
 % OUT
 \csdef{avr@instr@10111}#1#2#3#4#5#6#7#8\@nnil{%
   \def\@@A{#1#2#8}%
@@ -44,11 +48,11 @@
 \csdef{avr@io@111110@set}#1{\avr@stack@SPH@set{#1}}
 \csdef{avr@io@111101@set}#1{\avr@stack@SPL@set{#1}}
 
-\def\avr@UDR#1{\relax}
 \csdef{avr@io@001100@set}#1{%
   \avr@bin@tocount{#1}{\avr@count@tmpa}%
+  \avr@ascii{\the\avr@count@tmpa}{\@@char}%
   \avr@debug{UDR: #1=\the\avr@count@tmpa}%
-  \def\avr@UDR{#1}%
+  \xdef\avr@UDR{\avr@UDR \@@char}%
 }
 
 
