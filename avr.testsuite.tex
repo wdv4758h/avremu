@@ -21,6 +21,14 @@
   }%
 }
 
+\def\avr@test@MEM#1#2{% Tests MEM for value
+  \avr@mem@get{#1}{\@@MEM}%
+  \expandafter\ifstrequal\expandafter{\@@MEM}{#2}{%Success
+    }{%
+    \avr@error{MEM unequal: #2 != \@@MEM}%
+  }%
+}
+
 % Hook Macro for the tests
 \def\avr@test{}
 
@@ -381,7 +389,9 @@
 \preto\avr@test{\avr@test@ROR}
 
 \begin{filecontents*}{empty-main.c}
-int main() { }
+int main() {   
+  asm volatile ("break");
+}
 \end{filecontents*}
 
 \def\avr@test@emptymain{%
@@ -442,6 +452,79 @@ int main() {
 }
 \preto\avr@test{\avr@test@fibRec}
 
+
+\def\avr@test@LDX{%
+  \avr@test@setup{LDX}%
+  \avr@mem@set{11110111}{257}%
+  \avr@mem@set{11110000}{258}%
+  \avr@mem@set{11110001}{259}%
+
+  \avr@instr@LDI{0}{\csuse{avr@r27}}{00000001}%
+  \avr@instr@LDI{1}{\csuse{avr@r26}}{00000010}%
+  \avr@instr@LDX{2}{\csuse{avr@r20}}%
+  \avr@instr@LDXp{3}{\csuse{avr@r21}}%
+  \avr@instr@LDmX{4}{\csuse{avr@r22}}%
+  \avr@instr@LDmX{5}{\csuse{avr@r23}}%
+  \avr@instr@LDmX{6}{\csuse{avr@r24}}%
+  \avr@instr@LDmX{7}{\csuse{avr@r24}}%
+
+  \avr@instr@stepn{8}%
+  \avr@test@REG{r20}{11110000}
+  \avr@test@REG{r21}{11110000}
+  \avr@test@REG{r22}{11110000}
+  \avr@test@REG{r23}{11110111}
+  \avr@test@REG{r24}{00000000}
+  \avr@test@REG{r26}{11111111}
+  \avr@test@REG{r27}{00000000}
+}
+\preto\avr@test{\avr@test@LDX}
+
+\def\avr@test@STZ{%
+  \avr@test@setup{STZ}%
+
+  \avr@instr@LDI{0}{\csuse{avr@r31}}{00000001}%
+  \avr@instr@LDI{1}{\csuse{avr@r30}}{00000010}%
+  \avr@instr@STZ{2}{\csuse{avr@r30}}%
+  \avr@instr@STmZ{3}{\csuse{avr@r30}}%
+  \avr@instr@STZp{4}{\csuse{avr@r0}}%
+  \avr@instr@STZp{5}{\csuse{avr@r0}}%
+
+  \avr@instr@stepn{4}%
+  \avr@test@MEM{258}{00000010}
+  \avr@test@MEM{257}{00000010}
+
+  \avr@instr@stepn{2}%
+  \avr@test@MEM{258}{00000000}
+  \avr@test@MEM{257}{00000000}
+
+
+}
+\preto\avr@test{\avr@test@STZ}
+
+\begin{filecontents*}{complex-memory.c}
+#include <avr/io.h>
+
+volatile char foo[30];
+
+int main() { 
+  foo[0] = 23;
+  foo[1] = 42;
+  foo[2] = foo[0] + foo[1];
+
+  asm volatile ("break");
+}
+\end{filecontents*}
+
+\def\avr@test@complexMemory{%
+  \avr@test@setup{Complex Memory Operations}%
+  \avrloadc{complex-memory.c}
+  \avr@instr@stepn{1000}
+
+  \avr@test@MEM{96}{00010111} % 23
+  \avr@test@MEM{97}{00101010} % 42
+  \avr@test@MEM{98}{01000001} % 65
+}
+\preto\avr@test{\avr@test@complexMemory}
 
 
 %%% Local Variables: 

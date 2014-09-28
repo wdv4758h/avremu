@@ -119,6 +119,24 @@
   \edef#2{\csuse{avr@reg@#1}}%
 }
 
+\csdef{avr@X}{1101}
+\csdef{avr@Y}{1110}
+\csdef{avr@Z}{1111}
+
+\def\avr@regw@get#1#2{%
+  \avr@reg@get{#11}{\@@high}%
+  \avr@reg@get{#10}{\@@low}%
+  \edef#2{\@@high \@@low}%
+}
+
+\def\avr@regw@set#1#2{%
+  \edef\@@value{#1}%
+  \avr@bin@word@low{\@@value}{\@@low}%
+  \avr@bin@word@high{\@@value}{\@@high}%
+  \avr@reg@set{\@@high}{#21}%
+  \avr@reg@set{\@@low}{#20}%
+}
+
 \def\avr@reg@init{%
   \avr@reg@set{\avr@zeroes}{00000}%
   \avr@reg@set{\avr@zeroes}{00001}%
@@ -241,11 +259,19 @@
 }
 
 \def\avr@mem@set#1#2{% Bitstring, Address (as number)
+  \ifnum #2 < 96 % 0x60
+     % FIXME
+     \avr@error{Not implement access to IO/Regs through memory}%
+  \fi%
   \avr@debug{  MEM W *#2=#1}%
   \csxdef{avr@mem@#2}{#1}%
 }
 
 \def\avr@mem@get#1#2{% Address (as number), Target Macro
+  \ifnum #1 < 96 % 0x60
+     % FIXME
+     \avr@error{Not implement access to IO/Regs through memory}%
+  \fi%
   \ifcsdef{avr@mem@#1}{%
     \edef#2{\csuse{avr@mem@#1}}%
   }{%

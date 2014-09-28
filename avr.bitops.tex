@@ -37,6 +37,13 @@
 % \avr@bin@id{A}{\result} -> \result = A
 \def\avr@bin@id{\avr@bin@map{\avr@bit@id}}
 
+\csdef{avr@bit@mask@00}{.}
+\csdef{avr@bit@mask@01}{0}
+\csdef{avr@bit@mask@10}{.}
+\csdef{avr@bit@mask@11}{1}
+\def\avr@bit@mask#1#2{\csuse{avr@bit@mask@#1#2}}
+% \avr@bin@mask{value}{mask}{\result} -> \result = ...
+\def\avr@bin@mask{\avr@bin@zipmap{\avr@bit@mask}}
 
 \csdef{avr@bit@and@00}{0}
 \csdef{avr@bit@and@01}{0}

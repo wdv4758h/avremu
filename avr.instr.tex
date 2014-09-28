@@ -52,7 +52,7 @@
   }{\ifcsdef{avr@instr@#1}{%
     \csuse{avr@instr@#1}#2#3#4#5#6#7#8#9\@nnil%
   }{% Not found
-    \avr@error{Unkown Instruction: #1#2#3#4#5#6#7#8#9}%
+    \avr@instr@matchspecial{#1#2#3#4#5#6#7#8#9}%
   }}}}}}}}}%
 }
 
@@ -72,8 +72,20 @@
   }{\ifcsdef{avr@instr@#1:#9}{%
     \csuse{avr@instr@#1:#9}#2#3#4#5#6#7#8\@nnil%
   }{% Not found
-    \avr@error{Unkown Instruction: #1:#2#3#4#5#6#7#8#9}%
+    \avr@instr@matchspecial{#1#2#3#4#5#6#7#8#9}%
   }}}}}}}%
+}
+
+\def\avr@instr@matchspecial#1{%
+  \avr@bin@mask{#1}{1101001000001000}{\@@masked}%
+  \avr@bin@mask{#1}{0010110111110111}{\@@args}%
+
+  \ifcsdef{avr@instr@special@\@@masked}{%
+    \def\@tempa{\csuse{avr@instr@special@\@@masked}}%
+    \expandafter\@tempa\@@args\@nnil%
+  }{%
+    \avr@error{Unkown Instruction: #1}%
+  }%
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Match also from end for these prefixes
@@ -82,6 +94,9 @@
 % POP/PUSH
 \csdef{avr@instr@1001000}{\avr@instr@matchend{1001000}}
 \csdef{avr@instr@1001001}{\avr@instr@matchend{1001001}}
+% LD(XYZ)
+\csdef{avr@instr@1000000}{\avr@instr@matchend{1000000}}
+\csdef{avr@instr@1000001}{\avr@instr@matchend{1000001}}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -99,6 +114,10 @@
   \avr@bin@nibble@high{#4}{\avr@LDI@H}%
   \avr@bin@nibble@low{#4}{\avr@LDI@L}%
   \avr@code@set{#1\avr@LDI@H\avr@LDI@dddd\avr@LDI@L}{#2}%
+}
+
+\def\avr@instr@gen@onereg#1#2#3#4{%
+  \avr@code@set{#1#4#2}{#3}%
 }
 
 
@@ -565,6 +584,180 @@
   \avr@pc@inc%
 }
 
+\newcount\avr@addr
+\def\avr@instr@LDD@helper#1#2#3#4{%
+  % PreIncrement, RegisterW, PostIncrement, Target
+  \avr@regw@get{\csuse{avr@#2}}{\@@addr}%
+  \avr@debug{LD *(#1:#2:#3,#2=\@@addr)}%
+  \avr@bin@tocount{\@@addr}{\avr@addr}%
+  \advance \avr@addr by #1\relax%
+  \avr@count@overflow{\avr@addr}\relax%
+  \avr@mem@get{\the\avr@addr}{\avr@Rx}%
+  \advance \avr@addr by #3\relax%
+  \avr@count@overflow{\avr@addr}\relax%
+  \avr@count@tobin@w{\avr@addr}{\@@addr}%
+  \avr@regw@set{\@@addr}{\csuse{avr@#2}}%
+  \avr@reg@set{\avr@Rx}{#4}%
+  \avr@pc@inc%
+}
+
+\def\avr@instr@STS@helper#1#2#3#4{%
+  % PreIncrement, RegisterW, PostIncrement, SourceReg
+  \avr@regw@get{\csuse{avr@#2}}{\@@addr}%
+  \avr@reg@get{#4}{\avr@Rd}%
+  \avr@debug{ST *(#1:#2:#3,#2=\@@addr)}%
+  \avr@bin@tocount{\@@addr}{\avr@addr}%
+  \advance \avr@addr by #1\relax%
+  \avr@count@overflow{\avr@addr}\relax%
+  \avr@mem@set{\avr@Rd}{\the\avr@addr}%
+  \advance \avr@addr by #3\relax%
+  \avr@count@overflow{\avr@addr}\relax%
+  \avr@count@tobin@w{\avr@addr}{\@@addr}%
+  \avr@regw@set{\@@addr}{\csuse{avr@#2}}%
+  \avr@pc@inc%
+}
+
+% LD(X)
+\def\avr@instr@LDX{\avr@instr@gen@onereg{1001000}{1100}}
+\def\avr@instr@LDXp{\avr@instr@gen@onereg{1001000}{1101}}
+\def\avr@instr@LDmX{\avr@instr@gen@onereg{1001000}{1110}}
+  
+\csdef{avr@instr@1001000:1100}#1\@nnil{%
+  \avr@instr@LDD@helper{0}{X}{0}{#1}%
+}
+\csdef{avr@instr@1001000:1101}#1\@nnil{%
+  \avr@instr@LDD@helper{0}{X}{1}{#1}%
+}
+\csdef{avr@instr@1001000:1110}#1\@nnil{%
+  \avr@instr@LDD@helper{-1}{X}{0}{#1}%
+}
+
+% LD(Y)
+\def\avr@instr@LDY{\avr@instr@gen@onereg{1000000}{1000}}
+\def\avr@instr@LDYp{\avr@instr@gen@onereg{1001000}{1001}}
+\def\avr@instr@LDmY{\avr@instr@gen@onereg{1001000}{1010}}
+
+\csdef{avr@instr@1000000:1000}#1\@nnil{%
+  \avr@instr@LDD@helper{0}{Y}{0}{#1}%
+}
+\csdef{avr@instr@1001000:1001}#1\@nnil{%
+  \avr@instr@LDD@helper{0}{Y}{1}{#1}%
+}
+\csdef{avr@instr@1001000:1010}#1\@nnil{%
+  \avr@instr@LDD@helper{-1}{Y}{0}{#1}%
+}
+
+% LD(Z)
+\def\avr@instr@LDZ{\avr@instr@gen@onereg{1000000}{0000}}
+\def\avr@instr@LDZp{\avr@instr@gen@onereg{1001000}{0001}}
+\def\avr@instr@LDmZ{\avr@instr@gen@onereg{1001000}{0010}}
+
+\csdef{avr@instr@1000000:0000}#1\@nnil{%
+  \avr@instr@LDD@helper{0}{Z}{0}{#1}%
+}
+\csdef{avr@instr@1001000:0001}#1\@nnil{%
+  \avr@instr@LDD@helper{0}{Z}{1}{#1}%
+}
+\csdef{avr@instr@1001000:0010}#1\@nnil{%
+  \avr@instr@LDD@helper{-1}{Z}{0}{#1}%
+}
+
+% ST(X,Y,Z)
+\def\avr@instr@STX{\avr@instr@gen@onereg{1001001}{1100}}
+\def\avr@instr@STXp{\avr@instr@gen@onereg{1001001}{1101}}
+\def\avr@instr@STmX{\avr@instr@gen@onereg{1001001}{1110}}
+
+\csdef{avr@instr@1001001:1100}#1\@nnil{%
+  \avr@instr@STS@helper{0}{X}{0}{#1}%
+}
+\csdef{avr@instr@1001001:1101}#1\@nnil{%
+  \avr@instr@STS@helper{0}{X}{1}{#1}%
+}
+\csdef{avr@instr@1001001:1110}#1\@nnil{%
+  \avr@instr@STS@helper{-1}{X}{0}{#1}%
+}
+
+\def\avr@instr@STY{\avr@instr@gen@onereg{1000001}{1000}}
+\def\avr@instr@STYp{\avr@instr@gen@onereg{1001001}{1001}}
+\def\avr@instr@STmY{\avr@instr@gen@onereg{1001001}{1010}}
+
+\csdef{avr@instr@1000001:1000}#1\@nnil{%
+  \avr@instr@STS@helper{0}{Y}{0}{#1}%
+}
+\csdef{avr@instr@1001001:1001}#1\@nnil{%
+  \avr@instr@STS@helper{0}{Y}{1}{#1}%
+}
+\csdef{avr@instr@1001001:1010}#1\@nnil{%
+  \avr@instr@STS@helper{-1}{Y}{0}{#1}%
+}
+
+\def\avr@instr@STZ{\avr@instr@gen@onereg{1000001}{0000}}
+\def\avr@instr@STZp{\avr@instr@gen@onereg{1001001}{0001}}
+\def\avr@instr@STmZ{\avr@instr@gen@onereg{1001001}{0010}}
+
+\csdef{avr@instr@1000001:0000}#1\@nnil{%
+  \avr@instr@STS@helper{0}{Z}{0}{#1}%
+}
+\csdef{avr@instr@1001001:0001}#1\@nnil{%
+  \avr@instr@STS@helper{0}{Z}{1}{#1}%
+}
+\csdef{avr@instr@1001001:0010}#1\@nnil{%
+  \avr@instr@STS@helper{-1}{Z}{0}{#1}%
+}
+
+% Special Stores & Loads
+
+% LD R <- Y+q
+\csdef{avr@instr@special@10.0..0.....1...}..#1.#2.#3.#4\@nnil{%
+  \avr@debug{LD reg(#3) <- Y+#1#2#4}%
+  \avr@regw@get{\csuse{avr@Y}}{\@@addr}%
+  \avr@bin@tocount{\@@addr}{\avr@addr}%
+  \avr@bin@tocount{00#1#2#4}{\avr@count@tmpa}%
+  \advance \avr@addr by \avr@count@tmpa\relax%
+  \avr@count@overflow{\avr@addr}\relax%
+  \avr@mem@get{\the\avr@addr}{\avr@Rd}%
+  \avr@reg@set{\avr@Rd}{#3}%
+  \avr@pc@inc%
+}
+
+% LD R <- Z+q
+\csdef{avr@instr@special@10.0..0.....0...}..#1.#2.#3.#4\@nnil{%
+  \avr@debug{LD reg(#3) <- Z+#1#2#4}%
+  \avr@regw@get{\csuse{avr@Z}}{\@@addr}%
+  \avr@bin@tocount{\@@addr}{\avr@addr}%
+  \avr@bin@tocount{00#1#2#4}{\avr@count@tmpa}%
+  \advance \avr@addr by \avr@count@tmpa\relax%
+  \avr@count@overflow{\avr@addr}\relax%
+  \avr@mem@get{\the\avr@addr}{\avr@Rd}%
+  \avr@reg@set{\avr@Rd}{#3}%
+  \avr@pc@inc%
+}
+
+% ST Y+q <- R
+\csdef{avr@instr@special@10.0..1.....1...}..#1.#2.#3.#4\@nnil{%
+  \avr@debug{ST Y+#1#2#4 <- reg(#3)}%
+  \avr@regw@get{\csuse{avr@Y}}{\@@addr}%
+  \avr@reg@get{#3}{\avr@Rd}%
+  \avr@bin@tocount{\@@addr}{\avr@addr}%
+  \avr@bin@tocount{00#1#2#4}{\avr@count@tmpa}%
+  \advance \avr@addr by \avr@count@tmpa\relax%
+  \avr@count@overflow{\avr@addr}\relax%
+  \avr@mem@set{\avr@Rd}{\the\avr@addr}%
+  \avr@pc@inc%
+}
+
+% ST Z+q <- R
+\csdef{avr@instr@special@10.0..1.....0...}..#1.#2.#3.#4\@nnil{%
+  \avr@debug{ST Z+#1#2#4 <- reg(#3)}%
+  \avr@regw@get{\csuse{avr@Z}}{\@@addr}%
+  \avr@reg@get{#3}{\avr@Rd}%
+  \avr@bin@tocount{\@@addr}{\avr@addr}%
+  \avr@bin@tocount{00#1#2#4}{\avr@count@tmpa}%
+  \advance \avr@addr by \avr@count@tmpa\relax%
+  \avr@count@overflow{\avr@addr}\relax%
+  \avr@mem@set{\avr@Rd}{\the\avr@addr}%
+  \avr@pc@inc%
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Misc
