@@ -453,7 +453,7 @@
 \preto\avr@test{\avr@test@SWAP}
 
 \def\avr@test@LDSS{%
-  \avr@test@setup{LDS - STS}%
+  \avr@test@setup{LDS - STS (short)}%
   \avr@instr@LDI{0}{\csuse{avr@r20}}{00001001}%
   \avr@instr@STSS{1}{\csuse{avr@r20}}{1101001}%
   \avr@instr@LDSS{2}{\csuse{avr@r21}}{1101001}%
@@ -463,7 +463,7 @@
 }
 \preto\avr@test{\avr@test@LDSS}
 
-\def\avr@test@LDSS{%
+\def\avr@test@LDS{%
   \avr@test@setup{LDS - STS (long)}%
   \avr@instr@LDI{0}{\csuse{avr@r20}}{00001001}%
   \avr@instr@STS{1}{\csuse{avr@r20}}{0000000011111111}%
@@ -475,7 +475,21 @@
   \avr@instr@stepn{5}%
   \avr@test@REG{r21}{00001001}
 }
-\preto\avr@test{\avr@test@LDSS}
+\preto\avr@test{\avr@test@LDS}
+
+\def\avr@test@CPSE{%
+  \avr@test@setup{CPSE}%
+  \avr@instr@LDI{0}{\csuse{avr@r20}}{00001001}%
+  \avr@instr@LDI{1}{\csuse{avr@r21}}{00001001}%
+  \avr@instr@CPSE{2}{\csuse{avr@r20}}{\csuse{avr@r21}}% Skip always
+  \avr@instr@LDI{3}{\csuse{avr@r21}}{00001111}%
+  \avr@instr@NOP{4}%
+
+  \avr@instr@stepn{4}%
+  \avr@test@REG{r21}{00001001}
+}
+\preto\avr@test{\avr@test@CPSE}
+
 
 %%% Local Variables: 
 %%% mode: latex

@@ -16,6 +16,7 @@
   %\avr@reg@get{\csuse{avr@r28}}{\@@B}%
   %\avr@reg@get{\csuse{avr@r29}}{\@@C}%
   %\avr@debug{{r24=\@@A} {r28=\@@B} {r29=\@@C}}%
+  \avr@debug{\avr@instr@current}%
   % Dispatch Instruction by prefix
   \expandafter\avr@instr@dispatch\avr@instr@current\@nnil%
   \relax%
@@ -853,16 +854,16 @@
   \avr@bin@tocount{{\avr@bit@negate #3}#3#1#2#8}{\avr@addr}%
   \def\avr@RD{1#4#5#6#7}%
 }
-\csdef{avr@instr@10010}#1\@nnil{%
+\csdef{avr@instr@10100}#1\@nnil{%
   \avr@instr@LDSTS#1\@nnil%
-  \avr@debug{LDS - \avr@RD <- (\the\avr@addr)}%
+  \avr@debug{LDSS - \avr@RD <- (\the\avr@addr)}%
   \avr@mem@get{\the\avr@addr}{\@@value}%
   \avr@reg@set{\@@value}{\avr@RD}%
   \avr@pc@inc%
 }
 \csdef{avr@instr@10101}#1\@nnil{%
   \avr@instr@LDSTS#1\@nnil%
-  \avr@debug{STS - \avr@RD <- (\the\avr@addr)}%
+  \avr@debug{STSS - \avr@RD <- (\the\avr@addr)}%
   \avr@reg@get{\avr@RD}{\@@value}%
   \avr@mem@set{\@@value}{\the\avr@addr}%
   \avr@pc@inc%
@@ -1129,6 +1130,16 @@
 \def\avr@instr@SBRC#1#2#3{\avr@code@set{1111110#20#3}{#1}}
 \def\avr@instr@SBRS#1#2#3{\avr@code@set{1111111#20#3}{#1}}
 
+\def\avr@skip@instr@eq#1#2{%
+  \ifdefstrequal{#1}{#2}{%
+     \avr@pc@inc%
+     \avr@instr@length{\the\avr@pc}{\@@length}
+     \avr@debug{SKIP (\@@length) instruction}%
+     \avr@pc@add{\@@length}%
+  }{%
+    \avr@pc@inc%
+  }%
+}
 \csdef{avr@instr@111111}#1#2#3#4#5#6#7\@nnil{%
   \def\@@required{#1}% 1 if if set
   \avr@reg@get{#2#3#4#5#6}{\avr@Rr}%
@@ -1136,17 +1147,18 @@
   \edef\@@bit{\the\avr@count@tmpa}%
   \avr@bin@getbit{\avr@Rr}{\@@bit}{\@@found}%
   \avr@debug{SBR[SC] Skip iff \avr@Rr:\@@bit(\@@found) == \@@required}%
-  \avr@count@tmpa=\@@found%
-  \avr@count@tmpb=\@@required\relax%
-  \ifnum \avr@count@tmpa = \avr@count@tmpb%
-     \avr@pc@inc%
-     \avr@instr@length{\the\avr@pc}{\@@length}
-     \avr@debug{SKIP (\@@length) instruction}%
-     \avr@pc@add{\@@length}%
-     \avr@pc@add{-1}%
-  \fi%
-  \avr@pc@inc%
+  \avr@skip@instr@eq{\@@required}{\@@found}%
 }
+
+% CPSE - Compare Skip iff Equal
+\def\avr@instr@CPSE{\avr@instr@gen@tworegs{000100}}
+\csdef{avr@instr@000100}#1#2#3#4#5#6#7\@nnil{%
+  \avr@reg@get{#1#7}{\avr@Rr}%
+  \avr@reg@get{#2#3#4#5#6}{\avr@Rd}%
+  \avr@debug{CPSE -  \avr@Rd + \avr@Rr}%
+  \avr@skip@instr@eq{\avr@Rd}{\avr@Rr}%
+}
+
 
 \def\avr@instr@ASR#1#2{\avr@code@set{1001010#20101}{#1}}
 \csdef{avr@instr@1001010:0101}#1\@nnil{%
