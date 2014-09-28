@@ -1,0 +1,7 @@
+*.error
+*.hex
+*.elf
+*.output
+*.tex
+*.log
+*.aux

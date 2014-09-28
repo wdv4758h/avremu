@@ -106,7 +106,7 @@ do_test()
 	# grab the actual output & exit value
 	pdflatex -halt-on-error -shell-escape "$file".tex 1> $file.output 2> $file.error
 	actual_exit_value=$?
-    rm -f "$file.tex" *.log *.aux *.pdf
+    rm -f *.log *.aux *.pdf
 
 	if [ "$actual_exit_value" -ne 0 ]; then
 		error "   Actual exit value does not match the expected one."
