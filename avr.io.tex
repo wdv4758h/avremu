@@ -1,0 +1,59 @@
+%%
+%% The IO Subsystem
+%%
+
+% OUT
+\csdef{avr@instr@10111}#1#2#3#4#5#6#7#8\@nnil{%
+  \def\@@A{#1#2#8}%
+  \avr@reg@get{#3#4#5#6#7}{\avr@Rr}%
+  \avr@debug{OUT \@@A <- \avr@Rr}%
+  \avr@io@set{\avr@Rr}{\@@A}%
+  \avr@pc@inc%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% IO Handlers
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% #1=Value, #2=Addr
+\def\avr@io@set#1#2{%
+  \ifcsdef{avr@io@#2@set}{%
+    \csuse{avr@io@#2@set}{#1}%
+  }{%
+    \avr@io@set@default{#1}{#2}%
+  }%
+}
+% #1=Addr, #2=\result
+\def\avr@io@get#1#2{%
+  \ifcsdef{avr@io@#2@get}{%
+    \csuse{avr@io@#2@get}{#2}%
+  }{%
+    \avr@io@get@default{#1}{#2}%
+  }%
+}
+
+\def\avr@io@set@default#1#2{%
+  \avr@error{IO Port #2 is not defined (OUT #1)}%
+}
+
+\csdef{avr@io@111111@set}#1{%
+  \avr@debug{  SREG=#1}%
+  \avr@sreg@set{#1}%
+}
+
+\csdef{avr@io@111110@set}#1{\avr@stack@SPH@set{#1}}
+\csdef{avr@io@111101@set}#1{\avr@stack@SPL@set{#1}}
+
+\def\avr@UDR#1{\relax}
+\csdef{avr@io@001100@set}#1{%
+  \avr@bin@tocount{#1}{\avr@count@tmpa}%
+  \avr@debug{UDR: #1=\the\avr@count@tmpa}%
+  \def\avr@UDR{#1}%
+}
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "avr.tex"
+%%% End: 
