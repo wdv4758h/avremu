@@ -5,9 +5,13 @@
 \def\avr@error#1{%
   \avr@dump%
   \errmessage{\the\avr@pc: #1}\bye%
-
 }
 
+
+\newcount\avr@instr@executed
+\def\avr@instr@init{%
+  \avr@instr@executed=0%
+}
 
 % Execution Engine
 \def\avr@instr@step{%
@@ -19,8 +23,7 @@
   %\avr@debug{\avr@instr@current}%
   % Dispatch Instruction by prefix
   \expandafter\avr@instr@dispatch\avr@instr@current\@nnil%
-  \relax%
-
+  \advance\avr@instr@executed by 1\relax%
 }
 
 \def\avr@singlestep{%
@@ -367,10 +370,10 @@
 \csdef{avr@instr@INCDEC@helper}#1#2{%
   \avr@reg@get{#1}{\avr@Rd}%
   \avr@debug{INCDEC #1(=\avr@Rd) +(#2)}%
-  \avr@bin@tocount{\avr@Rd}{\avr@count@tmpa}%
-  \advance \avr@count@tmpa by #2\relax%
-  \avr@count@modulo@byte{\avr@count@tmpa}%
-  \avr@count@tobin@b{\avr@count@tmpa}{\avr@Rx}%
+  \avr@bin@tocount{\avr@Rd}{\avr@accA}%
+  \advance \avr@accA by #2\relax%
+  \avr@count@modulo@byte{\avr@accA}%
+  \avr@count@tobin@b{\avr@accA}{\avr@Rx}%
   \ifdefstring{\avr@Rx}{01111111}{%
     \avr@flag@set V 1%
   }{%
@@ -630,7 +633,7 @@
   \avr@reg@get{\csuse{avr@r24}}{\@@A}%
   \avr@reg@get{\csuse{avr@r25}}{\@@B}%
   \avr@reg@get{\csuse{avr@r26}}{\@@C}%
-  \avr@debug{ICALL \the\avr@count@tmpa {r24:\@@A} {r25:\@@B} {r26:\@@C}}%
+  \avr@debug{RCALL \the\avr@count@tmpa {r24:\@@A} {r25:\@@B} {r26:\@@C}}%
   \avr@CALL@helper{\@@pc}%
   \avr@pc@add{\avr@count@tmpa}%
 }
@@ -651,12 +654,12 @@
 \def\avr@instr@IJMP#1{\avr@code@set{1001010000001001}{#1}}
 \csdef{avr@instr@1001010000001001}\@nnil{
   \avr@count@tobin@w{\the\avr@pc}{\@@pc}%
-  \avr@regw@get{Z}{\@@addr}
+  \avr@regw@get{\csuse{avr@Z}}{\@@addr}
   \avr@bin@tocount{\@@addr}{\avr@addr}%
-  \avr@reg@get{\csuse{avr@r24}}{\@@A}%
-  \avr@reg@get{\csuse{avr@r25}}{\@@B}%
-  \avr@reg@get{\csuse{avr@r26}}{\@@C}%
-  \avr@debug{IJMP \the\avr@addr {r24:\@@A} {r25:\@@B} {r26:\@@C}}%
+  \avr@reg@get{\csuse{avr@r24}}{\@@a}%
+  \avr@reg@get{\csuse{avr@r25}}{\@@b}%
+  \avr@reg@get{\csuse{avr@r26}}{\@@c}%
+  \avr@debug{IJMP \the\avr@addr {r24:\@@a} {r25:\@@b} {r26:\@@c}}%
   \avr@pc=\avr@addr
 }
 
@@ -1023,7 +1026,7 @@
 }
 
 \csdef{avr@instr@1001010110011000}\@nnil{%
-  \avr@debug{BREAK}%
+  \avr@debug{BREAK: (\the\avr@instr@executed) instructions}%
   \avr@instr@steps=0\relax%
   \avr@pc@inc%
 }
@@ -1276,7 +1279,7 @@
 \def\avr@instr@LSR#1#2{\avr@code@set{1001010#20110}{#1}}
 \csdef{avr@instr@1001010:0110}#1\@nnil{%
   \avr@reg@get{#1}{\avr@Rr}%
-  \avr@debug{LSL: #1(=\avr@Rr)}%
+  \avr@debug{LSR #1(=\avr@Rr)}%
   \avr@bin@shiftright{\avr@Rr}{1}{\avr@Rx}{\@@carry}%
   \avr@bin@msb@get{\avr@Rx}{\@@N}%
   \avr@flag@set C \@@carry%

@@ -13,6 +13,13 @@ int main() {
 
   foo[4] = foo[1] % foo[0];
 
+  volatile uint16_t x = 1000;
+  volatile uint16_t y = 55;
+
+  foo[5] = x * y;
+
+  itoa(165, &foo[6], 10);
+
   asm volatile ("break");
 }
 
@@ -27,6 +34,12 @@ int main() {
 
   \avr@test@MEM{99}{00000001} % 1
   \avr@test@MEM{100}{00010011} % 19
+
+  \avr@test@MEM{101}{11011000} % 216
+
+  \avr@test@MEM{102}{00110001} % '1'
+  \avr@test@MEM{103}{00110110} % '6'
+  \avr@test@MEM{104}{00110101} % '5'
 
   check-end:
 */

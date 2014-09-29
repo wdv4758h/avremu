@@ -266,10 +266,10 @@
 % \avr@count@tobin@b uint8_t count|integer, \result -> \result = bin(arg)
 \def\avr@count@tobin@b#1#2{%
   \ifnum #1 > 255 %
-     \avr@error{#1 to large value}%
+     \avr@error{#1 to large value (\the#1)}%
   \fi%
   \ifnum #1 < 0 %
-     \avr@error{#1 to small value}%
+     \avr@error{#1 to small value (\the#1)}%
   \fi%
   \avr@count@tmpa=#1%
   \ifcsdef{avr@bin@\the\avr@count@tmpa}{}{%
@@ -371,9 +371,13 @@
 \def\avr@count@modulo@byte#1{%
   \avr@count@tmpa=#1\relax%
   \avr@count@tmpb=#1\relax%
+
   \divide \avr@count@tmpa by 256\relax%
   \multiply \avr@count@tmpa by 256\relax%
   \advance \avr@count@tmpb by -\avr@count@tmpa\relax%
+  \ifnum \avr@count@tmpb < 0%
+    \advance\avr@count@tmpb by 256%
+  \fi%
   #1 = \avr@count@tmpb\relax%
 }
 
