@@ -96,7 +96,8 @@ do_test()
 	echo -n "TEST    $test_name ($file)"
 
     cp HEADER "$file".tex
-    echo "\avrloadc[-lm -Os -mmcu=atmega8]{$file}" >> "$file".tex
+    get_value compiler-opts "$file"
+    echo "\avrloadc[-Os -mmcu=atmega8 $last_result]{$file}" >> "$file".tex
 
 	awk '/check-start/,/check-end/ {print}' $file \
 		| egrep -v 'check-(start|end)' >> "$file".tex
@@ -120,7 +121,8 @@ do_test()
 		test_failed=1
     else
         get_value BREAK "$file".output
-        echo " ($last_result)"
+        echo " ($last_result)" | sed 's/ instructions//' | tr -d "\n"
+        echo 
 	fi
 
 	if [ "$test_failed" -eq "1" ]; then

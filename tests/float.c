@@ -17,31 +17,25 @@ int
 main(void)
 {
     stdout = &mystdout;
-    printf("Hello, world!");
 
+    volatile float a = 0.23;
+    volatile float b = 0.43;
+
+    printf("%.2f", 1/ (a * b * 3));
     asm volatile("break;");
-
-
-    volatile float foo = 0.23;
-    printf("%.2f", foo);
-
-    asm volatile("break;");
-
 
     return 0;
 }
 
 
 /**
-   check-name: Print to Stdout and Float
+   check-name: Calculate with floats
+   compiler-opts: -Wl,-u,vfprintf -lm -lprintf_flt
+
    check-start:
 
    \avr@instr@stepn{100000}
-   \avr@test@UDR{Hello, world!}
-   \xdef\avr@UDR{}
+   \avr@test@UDR{3.37}
 
-   \avr@instr@stepn{100000}
-   \avr@test@UDR{0.23}
-   \def\avr@UDR{}
    check-end:
 **/

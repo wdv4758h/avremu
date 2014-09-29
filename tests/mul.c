@@ -17,8 +17,11 @@ int main() {
   volatile uint16_t y = 55;
 
   foo[5] = x * y;
+  foo[20] = 165;
 
-  itoa(165, &foo[6], 10);
+  itoa((unsigned char)foo[20], &foo[6], 10);
+  itoa((signed char)foo[20], &foo[9], 10);
+
 
   asm volatile ("break");
 }
@@ -40,6 +43,10 @@ int main() {
   \avr@test@MEM{102}{00110001} % '1'
   \avr@test@MEM{103}{00110110} % '6'
   \avr@test@MEM{104}{00110101} % '5'
+
+  \avr@test@MEM{105}{00101101} % '-'
+  \avr@test@MEM{106}{00111001} % '9'
+  \avr@test@MEM{107}{00110001} % '1'
 
   check-end:
 */

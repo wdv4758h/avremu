@@ -225,9 +225,12 @@
   \avr@reg@get{1#5#6#7#8}{\avr@Rd}%
   \def\avr@Rr{#1#2#3#4#9}%
   \avr@flag@get C \@@carry%
+  \avr@flag@get Z \@@oldZ%
   \xdef \avr@instr@extracarry {\avr@bit@negate \@@carry}%
   \avr@debug{SBCI - \%#2#3#4#5#6 <- #2#3#4#5#6(=\avr@Rd) - \avr@Rr -\@@carry}%
   \csuse{avr@instr@subber@helper}%
+  \avr@flag@get Z \@@newZ%
+  \avr@flag@set Z {\avr@bit@and \@@oldZ \@@newZ}%
   % Set the result register
   \avr@reg@set{\avr@Rx}{1#5#6#7#8}%
   \avr@pc@inc%
@@ -251,9 +254,12 @@
   \avr@reg@get{#1#7}{\avr@Rr}%
   \avr@reg@get{#2#3#4#5#6}{\avr@Rd}%
   \avr@flag@get C \@@carry%
+  \avr@flag@get Z \@@oldZ%
   \xdef \avr@instr@extracarry {\avr@bit@negate \@@carry}%
-  \avr@debug{CPC - #2#3#4#5#6(=\avr@Rd) - \%#1#7(=\avr@Rr)}%
+  \avr@debug{CPC - #2#3#4#5#6(=\avr@Rd) - \%#1#7(=\avr@Rr) - \@@carry}%
   \csuse{avr@instr@subber@helper}%
+  \avr@flag@get Z \@@newZ%
+  \avr@flag@set Z {\avr@bit@and \@@oldZ \@@newZ}%
   % Do not set the output register
   \avr@pc@inc%
 }
@@ -415,8 +421,9 @@
   }%
   \avr@flag@set C {\@@and {\@@not \@@X} \@@D}%
   \avr@flag@set N \@@X%
-  \avr@flag@set V {\@@and {\@@not \@@D} \@@X}%
-  \avr@flag@set S {\@@xor \@@X {\@@and {\@@not \@@D} \@@X}}%
+  \edef\@@V{\@@and {\@@not \@@D} \@@X}%
+  \avr@flag@set V \@@V%
+  \avr@flag@set S {\@@xor \@@X \@@V}%
   % Set the Result
   \avr@regw@set{\avr@Rx}{11#3#4}%
   \avr@pc@inc%
