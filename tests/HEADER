@@ -12,6 +12,7 @@
 \input{../avr.instr}
 \input{../avr.io}
 \input{../avr.testsuite}
+\input{../avr.draw}
 
 \begin{document}
 \makeatletter

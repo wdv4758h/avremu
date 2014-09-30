@@ -107,7 +107,7 @@ do_test()
 	# grab the actual output & exit value
 	pdflatex -halt-on-error -shell-escape "$file".tex 1> $file.output 2> $file.error
 	actual_exit_value=$?
-    rm -f *.log *.aux *.pdf
+    rm -f *.log *.aux 
 
 	if [ "$actual_exit_value" -ne 0 ]; then
         echo

@@ -1,3 +1,7 @@
+\def\avr@log#1{%
+  \typeout{AVR (\the\avr@instr@executed): #1}%
+}
+
 \def\avr@debug#1{%
   \typeout{\the\avr@pc: #1}%
 }
@@ -39,6 +43,20 @@
   \def\avr@instr@stepn@helper{
     \ifnum \avr@instr@steps > 0%
       \advance \avr@instr@steps by -1\relax%
+      \avr@instr@step%
+    \else%
+      \let\avr@instr@stepn@helper\relax%
+    \fi%
+    \avr@instr@stepn@helper%
+  }%
+  \avr@instr@stepn@helper%
+}
+
+% Run Forever
+\def\avr@instr@run{
+  \avr@instr@steps=1%
+  \def\avr@instr@stepn@helper{
+    \ifnum \avr@instr@steps > 0%
       \avr@instr@step%
     \else%
       \let\avr@instr@stepn@helper\relax%

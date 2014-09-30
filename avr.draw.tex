@@ -1,0 +1,121 @@
+
+% We define 2 IO Registers to communicate from AVR to the Drawing
+% mechanism
+
+\usepackage{tikz}
+
+% TWAR
+\newcount\avr@draw@argc
+\csdef{avr@io@000010@set}#1{%
+  \avr@bin@tocount{#1}{\avr@accA}%
+  \avr@log{DRAW CMD: \the\avr@accA}%
+  \avr@draw@command{\the\avr@accA}%
+  \avr@draw@argc = 0\relax
+}
+
+\csdef{avr@io@000011@set}#1{%
+  \avr@bin@tocount{#1}{\avr@accA}%
+  \avr@debug{AVR DRAW PUSH: \the\avr@accA}%
+  \csxdef{avr@draw@stack@\the\avr@draw@argc}{\the\avr@accA}%
+  \advance\avr@draw@argc by 1\relax
+}
+
+\def\avr@draw@stack#1{\csuse{avr@draw@stack@#1}}
+
+
+\def\avr@draw@command#1{%
+  \ifcsdef{avr@draw@command@#1}{%
+    \csuse{avr@draw@command@#1}%
+  }{%
+    \avr@error{AVR DRAW: Unkown Command #1}%
+  }%
+}
+
+
+\def\avr@draw@canvas{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Draw Commands
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\csdef{avr@draw@command@0}{} % NOP
+
+%  Set Draw Color
+\definecolor{avrdraw}{rgb}{255,255,255}
+\csdef{avr@draw@command@1}{%
+  \ifnum \avr@draw@argc < 3%
+    \avr@debug{DRAW: Set Draw COLOR, Not enough arguments}%
+  \fi%
+  \edef\@@append{%
+    \detokenize{\definecolor{avrdraw}}%
+    {rgb}{\avr@draw@stack{0},\avr@draw@stack{1},\avr@draw@stack{2}}%
+  }
+  \eappto\avr@draw@canvas{\@@append}
+}
+
+%  Set Fill Color
+\definecolor{avrfill}{rgb}{255,255,255}
+\csdef{avr@draw@command@2}{%
+  \ifnum \avr@draw@argc < 3%
+    \avr@debug{DRAW: Set Fill COLOR, Not enough arguments}%
+  \fi%
+  \edef\@@append{%
+    \detokenize{\definecolor{avrfill}}%
+    {rgb}{\avr@draw@stack{0},\avr@draw@stack{1},\avr@draw@stack{2}}%
+  }
+  \eappto\avr@draw@canvas{\@@append}
+}
+
+\csdef{avr@draw@command@3}{%
+  \avr@draw@command{1}% Set Draw Color
+  \avr@draw@command{2}% Set Fill Color
+}
+
+
+
+% Rectangle
+\csdef{avr@draw@command@4}{%
+  \ifnum \avr@draw@argc < 4%
+    \avr@debug{DRAW: Rectangle, Not enough arguments (4 required)}
+  \fi%
+  \edef\@@append{%
+    \detokenize{\node}%
+    [minimum height = \avr@draw@stack{2}mm,%
+     minimum width  = \avr@draw@stack{3}mm,%
+     inner sep=0,%
+     anchor=north west,
+     draw=avrdraw,fill=avrfill] 
+    at (\avr@draw@stack{0}mm,\avr@draw@stack{1}mm) {};%
+  }%
+  \eappto\avr@draw@canvas{\@@append}%
+}
+
+% Small Rectangle
+\csdef{avr@draw@command@5}{%
+  \ifnum \avr@draw@argc < 2%
+    \avr@debug{DRAW: Short Rectangle, Not enough arguments (2 required)}
+  \fi%
+  \edef\@@append{%
+    \detokenize{\node}%
+    [minimum size = 1mm,%
+     inner sep=0,%
+     anchor=north west,
+     draw=avrdraw,fill=avrfill] 
+    at (\avr@draw@stack{0}mm,\avr@draw@stack{1}mm) {};%
+  }%
+  \eappto\avr@draw@canvas{\@@append}%
+}
+
+
+\newcommand{\avrdrawcanvas}{%
+  \begin{tikzpicture}
+    \scantokens\expandafter{\avr@draw@canvas}%
+  \end{tikzpicture}
+
+}
+  
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "avr.tex"
+%%% End: 
