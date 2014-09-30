@@ -6,8 +6,6 @@
 
 \makeatletter
 
-
-
 \errorcontextlines=23
 
 \input{avr.numbers}
@@ -23,72 +21,10 @@
 
 \makeatletter
 
-% \avr@acc=44
-% \avr@count@tobin@b{\avr@acc}{\foo}
-% \foo
-% 
-% \avr@acc=257
-% \avr@count@tobin@w{\avr@acc}{\foo}
-% \avr@bin@negate{\foo}{\foo}
-% \avr@bin@tocount{\foo}{\avr@acc}
-% \foo=\the\avr@acc
-% 
-% \avr@count@tobin@w{18245}{\foo}
-% \avr@bin@tocount{\foo}{\avr@acc}
-% \foo=\the\avr@acc
-% 
-% \avr@acc=128
-% \avr@count@tobin@b{\avr@acc}{\foo}
-% :\avr@bin@or{\foo}{00001100}{\foo};
-% :\avr@bin@btw@sign{\foo}{\foo};
-% :\avr@bin@wtb{\foo}{\foo};
-% :\avr@bin@and{00001111}{\foo}{\foo};
-% 
-% \foo
-% 
-% :\avr@bin@shiftleft{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftleft{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftleft{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftleft{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftleft{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% 
-% :\avr@bin@shiftright{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftright{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftright{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftright{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftright{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftright{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftright{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftright{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% 
-% :\avr@bin@or{\foo}{10000001}{\foo};\foo\\
-% :\avr@bin@shiftright@arith{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftright@arith{\foo}{2}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftright@arith{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% 
-% :\def\foo{10000001};\foo\\
-% :\avr@bin@shiftright@barrel{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftright@barrel{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftright@barrel{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftleft@barrel{\foo}{1}{\foo}{\carry};\carry+\foo+\\
-% :\avr@bin@shiftleft@barrel{\foo}{2}{\foo}{\carry};\carry+\foo+\\
-
 \avr@test
-% \avr@init
-
-
-% \avr@instr@LDI{0}{\csuse{avr@r31}}{10001100}
-% \avr@instr@LDI{1}{\csuse{avr@r17}}{10111111}
-% \avr@instr@ADD{2}{\csuse{avr@r17}}{\csuse{avr@r31}}
-
-% \avr@instr@step
-% \avr@instr@step
 
 \avr@dump@totex
 
-% \avr@instr@step
-
-% \avr@dump@totex
 
 \end{document}
 

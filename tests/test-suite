@@ -152,6 +152,10 @@ pwait() {
 do_test_suite()
 {
 	for i in $tests_list; do
+        if get_value "check-long" "$i" > /dev/null; then
+            echo "IGNORED    $i (long running)"
+            continue
+        fi
 		do_test "$i"
 	done
 

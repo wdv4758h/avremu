@@ -106,6 +106,7 @@ int main() {
 
 /*
   check-name: Complex Memory Operations
+  check-long: 1
   check-start:
   \def\avr@debug#1{}
   \avr@instr@run
