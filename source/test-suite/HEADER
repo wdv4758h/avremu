@@ -1,7 +1,7 @@
 \documentclass{article}
 \usepackage{graphicx}
 
-\usepackage{avremu}
+\usepackage[debug]{avremu}
 \useavremulibrary{avr.draw}
 
 \errorcontextlines=23

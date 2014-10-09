@@ -9,7 +9,7 @@ programming language. TeX can compute anything, that is
 computable. Computeability is a concept from theoretical computer
 science. After visiting a theoretical CS course, you will know that
 there are things that cannot be solved by a machine. Never. Look out
-for the halting machine. So, Turing-complete does not say "It's a
+for the halting problem. So, Turing-complete does not say "It's a
 proper programming language", but more "someone can write a proper
 interpreter for any programming language in it, theoretically".
 
@@ -27,6 +27,8 @@ would have to write a compiler for C in TeX. Not a very promising
 future, if you start this. But, we can use a normal C compiler to
 compile the C code to some simple platform. Like AVR[4]. Since I have
 other things to do than writing an AVR Emulator in TeX, here it is!
+
+The newest source can be found at https://gitlab.brokenpipe.de/stettberger/avr_tex.
 
 ## You are writing an CPU emulator in TeX, the TYPESETTING system? ##
 
