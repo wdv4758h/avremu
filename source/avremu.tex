@@ -1,0 +1,50 @@
+\documentclass{article}
+\usepackage{avremu}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{filecontents}
+\usepackage{tcolorbox}
+
+\begin{filecontents*}{hello-world.c}
+#include <avr/io.h>
+
+int
+main(void)
+{
+  char *str = "Hello World!";
+  char *p = str;
+  while (*p) {
+    UDR = *p++;
+  }
+  asm  volatile ("break;");
+}
+\end{filecontents*}
+
+\title{The \texttt{avremu} Package}
+\author{Christian Dietrich\\
+\url{stettberger@dokucode.de}}
+
+\begin{document}
+
+\maketitle
+
+\begin{tcolorbox}
+  \lstinputlisting[language=C]{hello-world.c}
+  \tcblower
+  \begin{lstlisting}[language=TeX]
+\avrloadc{hello-world.c}
+\avrrun
+UDR='\avrUDR' in \avrinstrcount\ instructions
+\end{lstlisting}
+\end{tcolorbox}
+\begin{tcolorbox}
+\avrloadc{hello-world.c}\avrrun
+UDR='\avrUDR' in \avrinstrcount\ instructions
+\end{tcolorbox}
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
