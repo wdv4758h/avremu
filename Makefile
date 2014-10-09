@@ -24,12 +24,15 @@ avremu.zip: source/avremu.pdf
 	cp -r imgs avremu/source/latex/avremu
 	mkdir -p avremu/source/latex/avremu/test-suite
 	cp source/test-suite/*.c avremu/source/latex/avremu/test-suite
+	cp source/test-suite/test-suite avremu/source/latex/avremu/test-suite
+	cp source/test-suite/FOOTER avremu/source/latex/avremu/test-suite
+	cp source/test-suite/HEADER avremu/source/latex/avremu/test-suite
 	cp  source/simple-testsuite.tex avremu/source/latex/avremu/
 	# Documenation directory
 	mkdir -p avremu/doc/latex/avremu
 	cp source/avremu.pdf avremu/doc/latex/avremu
 	cp README.md avremu/doc/latex/avremu/README
-	zip -r avremu.zip avremu
+	cd avremu; zip -r ../avremu.zip *
 	rm -rf avremu
 
 
