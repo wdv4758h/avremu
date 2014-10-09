@@ -68,9 +68,6 @@ int main() {
     uint8_t i;
     for (hy=1;hy<=hyres;hy++)  {
         for (hx=1;hx<=hxres;hx++)  {
-            setcolor(hx * 100, 255, 0);
-            dot(hx-1, hy-1);
-            continue;
             cx = (((float)hx)/((float)hxres)-0.5)/magnify*3.0-0.7;
             cy = (((float)hy)/((float)hyres)-0.5)/magnify*3.0;
             cx += xdelta;
@@ -108,7 +105,6 @@ int main() {
   \def\avr@debug#1{}
 
   \avr@instr@run
-
 
   \avrdrawppm{mandelbrot.ppm}
 

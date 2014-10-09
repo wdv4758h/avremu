@@ -1,3 +1,7 @@
+%
+% This interacts with the avr-gcc and provides a loader for ihex files
+%
+
 \def\avr@ihex@parse@line:#1#2#3#4#5#6#7#8#9;{%
   \avr@hex@tobin{#1#2}{\avr@ihex@bytes}%
   \avr@hex@tobin{#3#4#5#6}{\avr@ihex@address}%
@@ -76,11 +80,7 @@
 }
 
 \newcommand{\avrloadihex}[1]{%
+  \avr@init%
   \avr@ihex@load{#1}%
 }
 
-
-%%% Local Variables: 
-%%% mode: latex
-%%% TeX-master: t
-%%% End: 

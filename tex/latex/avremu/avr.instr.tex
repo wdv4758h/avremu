@@ -1,3 +1,7 @@
+%
+% This file contains all opcode implementations
+%
+
 \def\avr@log#1{%
   \typeout{AVR (\the\avr@instr@executed): #1}%
 }
@@ -11,7 +15,6 @@
   \errmessage{\the\avr@pc: #1}\bye%
 }
 
-
 \newif\ifavrbreak
 \avrbreakfalse
 \newcount\avr@instr@executed
@@ -20,7 +23,21 @@
   \avrbreakfalse%
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%$
 % Execution Engine
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\avrstep}[1][1]{%
+  \avr@instr@steps{#1}%
+}
+
+\newcommand{\avrrun}{%
+  \avr@instr@run%
+}
+
+\newcommand{\avrsinglestep}{
+  \avr@instr@singlestep%
+}
+
 \def\avr@instr@step{%
   \avr@code@get{\avr@instr@current}%
   %\avr@reg@get{\csuse{avr@r24}}{\@@A}%
@@ -33,11 +50,11 @@
   \advance\avr@instr@executed by 1\relax%
 }
 
-\def\avr@singlestep{%
+\def\avr@instr@singlestep{%
    \avr@dump%
-  \typein{Press Enter to Step}%  
-  \avr@instr@step%
-  \avr@singlestep%
+   \typein{Press Enter to Step}%  
+   \avr@instr@step%
+   \avr@singlestep%
 }
 
 \newcount\avr@instr@steps
@@ -68,6 +85,10 @@
   }%
   \avr@instr@stepn@helper%
 }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Opcode decoding
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \def\avr@instr@dispatch#1#2#3#4#5#6#7#8#9\@nnil{%
   \ifcsdef{avr@instr@#1#2#3#4#5#6#7#8#9}{%
@@ -125,6 +146,7 @@
   }%
 }
 
+% How long is a specific instruction (for Skip one instr)
 \def\avr@instr@length#1#2{% Addr, Length
   \avr@code@load{#1}{\@@code}%
   \avr@bin@and{\@@code}{1111110000001111}{\@@LDS}%
@@ -149,7 +171,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Helpers
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \def\avr@instr@gen@tworegs#1#2#3#4{%
   \avr@bin@msb@del{#3}{\avr@ADD@dddd}{\avr@ADD@d}%
   \avr@bin@msb@del{#4}{\avr@ADD@rrrr}{\avr@ADD@r}%
@@ -1204,7 +1225,7 @@
   \avr@reg@get{#1#2#3#4#5}{\avr@Rd}%
   \edef\@@X{\the\avr@count@tmpa}%
   \avr@flag@get T \@@T%
-  \avr@debug{BLD #1#2#3#4#5(=\avr@Rd) |= \@@T<<\@@X}%
+  \avr@debug{BLD #1#2#3#4#5(=\avr@Rd) |= \@@T<<\@@X}%|
   \avr@bin@setbit{\avr@Rd}{\@@X}{\@@T}{\avr@Rd}%
   \avr@reg@set{\avr@Rd}{#1#2#3#4#5}%
   \avr@pc@inc%
@@ -1374,9 +1395,3 @@
   % Do not set the output register
   \avr@pc@inc%
 }
-
-
-%%% Local Variables: 
-%%% mode: latex
-%%% TeX-master: "avr.tex"
-%%% End: 
