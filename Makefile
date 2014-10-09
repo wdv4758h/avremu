@@ -28,6 +28,7 @@ avremu.zip: source/avremu.pdf
 	# Documenation directory
 	mkdir -p avremu/doc/latex/avremu
 	cp source/avremu.pdf avremu/doc/latex/avremu
+	cp README.md avremu/doc/latex/avremu/README
 	zip -r avremu.zip avremu
 	rm -rf avremu
 
