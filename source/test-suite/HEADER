@@ -1,0 +1,8 @@
+\documentclass{article}
+
+\usepackage{avremu}
+
+\errorcontextlines=23
+
+\begin{document}
+\makeatletter

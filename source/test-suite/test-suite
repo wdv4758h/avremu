@@ -16,6 +16,7 @@ ok_tests=0
 ko_tests=0
 known_ko_tests=0
 
+
 # defaults to not verbose
 [ -z "$V" ] && V=0
 
@@ -105,7 +106,7 @@ do_test()
 
 
 	# grab the actual output & exit value
-	pdflatex -halt-on-error -shell-escape "$file".tex 1> $file.output 2> $file.error
+	stdbuf -oL pdflatex -halt-on-error -shell-escape "$file".tex 1> $file.output 2> $file.error
 	actual_exit_value=$?
     rm -f *.log *.aux 
 

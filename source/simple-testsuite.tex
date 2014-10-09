@@ -1,42 +1,8 @@
-%% This is the test suite for my avr Implementation
-\def\avr@test@setup#1{%
-  \typeout{---- Test: #1 ----}%
-  \typeout{-> Initialize the AVR}%
-  \avr@init%
-}
+\documentclass{article}
+\usepackage{avremu}
 
-\def\avr@test@SREG#1{% Tests SREG for value
-  \avr@sreg@get{\@@SREG}%
-  \expandafter\ifstrequal\expandafter{\@@SREG}{#1}{%Success
-    }{%
-    \avr@error{SREG unequal: #1 != \@@SREG}%
-  }%
-}
-
-\def\avr@test@REG#1#2{% Tests SREG for value
-  \avr@reg@get{\csuse{avr@#1}}{\@@REG}%
-  \expandafter\ifstrequal\expandafter{\@@REG}{#2}{%Success
-    }{%
-    \avr@error{REG unequal: #2 != \@@REG}%
-  }%
-}
-
-\def\avr@test@MEM#1#2{% Tests MEM for value
-  \avr@mem@get{#1}{\@@MEM}%
-  \expandafter\ifstrequal\expandafter{\@@MEM}{#2}{%Success
-    }{%
-    \avr@error{MEM unequal: #2 != \@@MEM}%
-  }%
-}
-
-\def\avr@test@UDR#1{% Tests UDR output
-  \ifdefstring{\avr@UDR}{#1}{%Success
-    }{%
-    \avr@error{UDR unequal: #1 != \avr@UDR}%
-  }%
-  \def\avr@UDR{}%
-}
-
+\begin{document}
+\makeatletter
 % Hook Macro for the tests
 \def\avr@test{}
 
@@ -532,9 +498,14 @@
 }
 \preto\avr@test{\avr@test@ADIW}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Run the test-suite
 
+\avr@test
 
+\end{document}
 %%% Local Variables: 
 %%% mode: latex
-%%% TeX-master: "avr.tex"
+%%% TeX-master: t
 %%% End: 
+

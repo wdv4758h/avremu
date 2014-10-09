@@ -3,7 +3,7 @@
 }
 
 \def\avr@debug#1{%
-  \typeout{\the\avr@pc: #1}%
+  \typeout{\the\avr@instr@executed:\the\avr@pc: #1}%
 }
 
 \def\avr@error#1{%
@@ -12,9 +12,12 @@
 }
 
 
+\newif\ifavrbreak
+\avrbreakfalse
 \newcount\avr@instr@executed
 \def\avr@instr@init{%
   \avr@instr@executed=0%
+  \avrbreakfalse%
 }
 
 % Execution Engine
@@ -1053,6 +1056,7 @@
 \csdef{avr@instr@1001010110011000}\@nnil{%
   \avr@debug{BREAK: (\the\avr@instr@executed) instructions}%
   \avr@instr@steps=0\relax%
+  \avrbreaktrue%
   \avr@pc@inc%
 }
 

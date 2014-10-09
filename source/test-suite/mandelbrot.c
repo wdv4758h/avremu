@@ -9,34 +9,23 @@
 
 #include <avr/io.h>
 
-#define SET_DRAW_COLOR 1
-#define SET_FILL_COLOR 2
-#define SET_ALL_COLOR 3
-
-#define CMD_RECTANGLE 4
-#define CMD_SHORT_RECTANGLE 5
+#define CMD_COLOR 1
+#define CMD_DOT 2
 
 
 
 static
-void setcolor(uint8_t color, uint8_t r, uint8_t g, uint8_t b) {
+void setcolor(uint8_t r, uint8_t g, uint8_t b) {
     TWDR = r;
     TWDR = g;
     TWDR = b;
-    TWAR = color;
-}
-
-static
-void rectangle(uint8_t x, uint8_t y, uint8_t w, uint8_t h) {
-    TWDR = x, TWDR = y;
-    TWDR = w, TWDR = h;
-    TWAR = CMD_RECTANGLE;
+    TWAR = CMD_COLOR;
 }
 
 static
 void dot(uint8_t x, uint8_t y) {
     TWDR = x, TWDR = y;
-    TWAR = CMD_SHORT_RECTANGLE;
+    TWAR = CMD_DOT;
 }
 
 
@@ -67,35 +56,39 @@ char color_B[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 int main() {
 
     float x,xx,y,cx,cy;
-    uint16_t iteration;
+    uint8_t iteration;
     uint8_t hx,hy;
-    const uint8_t itermax = 100;        /* how many iterations to do    */
-    float magnify=2.0;      /* no magnification         */
-    uint8_t hxres = 20;      /* horizonal resolution         */
-    uint8_t hyres = 20;      /* vertical resolution      */
-    uint8_t i;
+#define itermax  100 /* how many iterations to do    */
+#define magnify  4.0 /* no magnification         */
+#define hxres    128   /* horizonal resolution      */
+#define hyres    128   /* vertical resolution       */
+#define ydelta 0
+#define xdelta -0.75
 
+    uint8_t i;
     for (hy=1;hy<=hyres;hy++)  {
         for (hx=1;hx<=hxres;hx++)  {
             cx = (((float)hx)/((float)hxres)-0.5)/magnify*3.0-0.7;
             cy = (((float)hy)/((float)hyres)-0.5)/magnify*3.0;
+            cx += xdelta;
+            cy += ydelta;
             x = 0.0; y = 0.0;
-            for (iteration=1;iteration<itermax;iteration++)  {
+            for (iteration=1; iteration < itermax; iteration++)  {
                 xx = x*x-y*y+cx;
                 y = 2.0*x*y+cy;
                 x = xx;
-               if (x*x+y*y>100.0)  {
-                 i = iteration;
-                 iteration = 0xff;
-                } 
+                if (x*x+y*y>128.0){
+                    i = iteration;
+                    iteration = itermax + 1;
+                }
             }
-            if (iteration<0xff)  {
-               setcolor(SET_ALL_COLOR, 0,0,0);
+            // Print a dot
+            if (iteration<itermax+1) {
+                setcolor(0,0,0);
             } else {
-               setcolor(SET_ALL_COLOR,
-                            color_R[i],
-                            color_G[i],
-                            color_B[i]);
+                setcolor(color_R[i],
+                         color_G[i],
+                         color_B[i]);
             }
             dot(hx-1, hy-1);
         }
@@ -105,18 +98,36 @@ int main() {
 }
 
 /*
-  check-name: Complex Memory Operations
+  check-name: Mandelbrot Set
+  compiler-opts: -O3
   check-long: 1
   check-start:
   \def\avr@debug#1{}
+
+  \newcommand{\mydot}[3]{%
+     \definecolor{avrfill}{RGB}{#3}%
+     \node[minimum size = 1mm,%
+           anchor=north west,
+           inner sep=0,
+           draw=avrfill,fill=avrfill]
+           at (#1 mm,#2 mm) {};%
+  }
+
   \avr@instr@run
 
-  \avrdrawcanvas
+  % Dump to .dat file
+  \newwrite\coords
+  \openout\coords=\jobname.coords.dat
+  \newcommand{\mydump}[3]{%
+    \edef\@tempa{#1,#2,#3}%
+    \expandafter\write\expandafter\coords\expandafter{\@tempa}%
+  }
+  \avrdrawiter{\mydump}
+  \closeout\coords
 
-  \newwrite\commentfile
-  \openout\commentfile=\jobname.tikz.tex
-  \write\commentfile{\avr@draw@canvas}
-  \closeout\commentfile
+  \begin{tikzpicture}[every node/.style={draw}]
+      \avrdrawiter{\mydot}
+  \end{tikzpicture}
 
   check-end:
 */

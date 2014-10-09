@@ -1,0 +1,99 @@
+
+% We define 2 IO Registers to communicate from AVR to the Drawing
+% mechanism
+
+\usepackage{tikz}
+
+
+\newcount\avr@draw@x
+\newcount\avr@draw@y
+\newcount\avr@draw@maxx
+\newcount\avr@draw@maxy
+
+\def\avr@draw@init{%
+  \avr@draw@maxx = 0%
+  \avr@draw@maxy = 0%
+}
+
+
+% TWAR
+\newcount\avr@draw@argc
+\csdef{avr@io@000010@set}#1{%
+  \avr@bin@tocount{#1}{\avr@accA}%
+  \avr@log{DRAW CMD: \the\avr@accA}%
+  \avr@draw@command{\the\avr@accA}%
+  \avr@draw@argc = 0\relax
+}
+
+\csdef{avr@io@000011@set}#1{%
+  \avr@bin@tocount{#1}{\avr@accA}%
+  \avr@debug{AVR DRAW PUSH: \the\avr@accA}%
+  \csxdef{avr@draw@stack@\the\avr@draw@argc}{\the\avr@accA}%
+  \advance\avr@draw@argc by 1\relax
+}
+
+\def\avr@draw@stack#1{\csuse{avr@draw@stack@#1}}
+
+
+\def\avr@draw@command#1{%
+  \ifcsdef{avr@draw@command@#1}{%
+    \csuse{avr@draw@command@#1}%
+  }{%
+    \avr@error{AVR DRAW: Unkown Command #1}%
+  }%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Draw Commands
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\csdef{avr@draw@command@0}{} % NOP
+
+%  Set Color
+\def\avr@draw@color{0,0,0}
+\csdef{avr@draw@command@1}{%
+  \ifnum \avr@draw@argc < 3%
+    \avr@debug{DRAW: Set Draw COLOR, Not enough arguments}%
+  \fi%
+  \xdef\avr@draw@color{\avr@draw@stack{0},\avr@draw@stack{1},\avr@draw@stack{2}}%
+}
+
+% Small Rectangle
+\csdef{avr@draw@command@2}{%
+  \ifnum \avr@draw@argc < 2%
+    \avr@debug{DRAW: Dot, Not enough arguments (2 required)}%
+  \fi%
+  \edef\@@X{\avr@draw@stack{0}}%
+  \edef\@@Y{\avr@draw@stack{1}}%
+  \ifnum \@@X  > \avr@draw@maxx%
+     \avr@draw@maxx=\@@X%
+  \fi%
+  \ifnum \@@Y  > \avr@draw@maxy%
+     \avr@draw@maxy=\@@Y%
+  \fi%
+  \csxdef{avr@draw@\@@X @\@@Y}{\avr@draw@color}%
+}
+
+
+\newcommand{\avrdrawiter}[1]{%
+  \avr@draw@x=0%
+  \loop%
+     \unless\ifnum \avr@draw@x > \avr@draw@maxx
+     \avr@draw@y=0%
+     {\loop%
+        \unless\ifnum \avr@draw@y > \avr@draw@maxy
+        \ifcsdef{avr@draw@\the\avr@draw@x @\the\avr@draw@y}{%
+          #1{\the\avr@draw@x}{\the\avr@draw@y}{\csuse{avr@draw@\the\avr@draw@x @\the\avr@draw@y}}%
+        }{}%
+        \advance \avr@draw@y by 1\relax%
+     \repeat}%
+     \advance \avr@draw@x by 1\relax%
+  \repeat%
+}
+  
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "avr.tex"
+%%% End: 
