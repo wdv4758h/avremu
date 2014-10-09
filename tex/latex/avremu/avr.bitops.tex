@@ -104,7 +104,7 @@
   }%
   \edef\@tmpb{#1}%
   \expandafter\avr@bin@setbit@helper\@tmpb\@nnil%
-  \edef#4{\@tempa}
+  \edef#4{\@tempa}%
 }
 
 % \avr@bin@btw bs:byte, \result -> \result = 00000000+bs
@@ -178,7 +178,7 @@
   }%
   \edef\@tempa{#1}%
   \def#2{}%
-  \expandafter\avr@bin@lsb@del@helper\@tempa\@nnil
+  \expandafter\avr@bin@lsb@del@helper\@tempa\@nnil%
 }
 
 % Get LSB: bs, \result
@@ -191,7 +191,7 @@
     \fi%
   }%
   \edef\@tempa{#1}%
-  \expandafter\avr@bin@lsb@get@helper\@tempa\@nnil
+  \expandafter\avr@bin@lsb@get@helper\@tempa\@nnil%
 }
 
 % Delete MSB: bs, \result,\carry

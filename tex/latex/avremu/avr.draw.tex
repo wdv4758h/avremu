@@ -19,14 +19,14 @@
   \avr@bin@tocount{#1}{\avr@accA}%
   \avr@log{DRAW CMD: \the\avr@accA}%
   \avr@draw@command{\the\avr@accA}%
-  \avr@draw@argc = 0\relax
+  \avr@draw@argc = 0\relax%
 }
 
 \csdef{avr@io@000011@set}#1{%
   \avr@bin@tocount{#1}{\avr@accA}%
   \avr@debug{AVR DRAW PUSH: \the\avr@accA}%
   \csxdef{avr@draw@stack@\the\avr@draw@argc}{\the\avr@accA}%
-  \advance\avr@draw@argc by 1\relax
+  \advance\avr@draw@argc by 1\relax%
 }
 
 \def\avr@draw@stack#1{\csuse{avr@draw@stack@#1}}
@@ -111,7 +111,7 @@
 
 \newwrite\avr@file%
 
-\newcommand{\avrdrawppm}[1]{  
+\newcommand{\avrdrawppm}[1]{%
   % Dump to .ppm file
   \immediate\openout\avr@file=#1%
   \immediate\write\avr@file{P3}%

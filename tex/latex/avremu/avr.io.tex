@@ -2,13 +2,20 @@
 %% The IO Subsystem
 %%
 
+\newcommand{\avrUDR}{%
+  \avr@UDR%
+}
+\newcommand{\avrUDRclear}{%
+  \def\avr@UDR{}%
+}
+
 \def\avr@io@init{%
   \def\avr@UDR{}%
 }
 
 % OUT
 \def\avr@instr@OUT#1#2#3{% A, R
-  \def\@@A{#2}
+  \def\@@A{#2}%
    \avr@bin@msb@del{\@@A}{\@@A}{\@@a}%
    \avr@bin@msb@del{\@@A}{\@@A}{\@@b}%
    \avr@code@set{10111\@@a\@@b#3\@@A}{#1}%
@@ -24,10 +31,10 @@
 
 % IN
 \def\avr@instr@IN#1#2#3{% A, R
-  \def\@@A{#2}
-   \avr@bin@msb@del{\@@A}{\@@A}{\@@a}%
-   \avr@bin@msb@del{\@@A}{\@@A}{\@@b}%
-   \avr@code@set{10110\@@a\@@b#3\@@A}{#1}%
+  \def\@@A{#2}%
+  \avr@bin@msb@del{\@@A}{\@@A}{\@@a}%
+  \avr@bin@msb@del{\@@A}{\@@A}{\@@b}%
+  \avr@code@set{10110\@@a\@@b#3\@@A}{#1}%
 }
 
 \csdef{avr@instr@10110}#1#2#3#4#5#6#7#8\@nnil{%

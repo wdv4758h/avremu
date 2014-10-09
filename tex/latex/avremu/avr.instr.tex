@@ -34,9 +34,11 @@
   \avr@instr@run%
 }
 
-\newcommand{\avrsinglestep}{
+\newcommand{\avrsinglestep}{%
   \avr@instr@singlestep%
 }
+
+\newcommand{\avrinstrcount}{\the\avr@instr@executed}
 
 \def\avr@instr@step{%
   \avr@code@get{\avr@instr@current}%
@@ -60,7 +62,7 @@
 \newcount\avr@instr@steps
 \def\avr@instr@stepn#1{%
   \avr@instr@steps=#1%
-  \def\avr@instr@stepn@helper{
+  \def\avr@instr@stepn@helper{%
     \ifnum \avr@instr@steps > 0%
       \advance \avr@instr@steps by -1\relax%
       \avr@instr@step%
@@ -73,9 +75,9 @@
 }
 
 % Run Forever
-\def\avr@instr@run{
+\def\avr@instr@run{%
   \avr@instr@steps=1%
-  \def\avr@instr@stepn@helper{
+  \def\avr@instr@stepn@helper{%
     \ifnum \avr@instr@steps > 0%
       \avr@instr@step%
     \else%
@@ -154,7 +156,7 @@
     \def#2{2}%
   }{%
     \def#2{1}%
-  }
+  }%
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Match also from end for these prefixes
@@ -523,7 +525,7 @@
      \advance \avr@count@tmpa by 1\relax%
   \fi%
   \avr@count@tobin@b{\avr@count@tmpa}{\@@res}%
-  \avr@bin@msb@del{\@@res}{#2}{\@tempa}
+  \avr@bin@msb@del{\@@res}{#2}{\@tempa}%
 }
 \def\avr@instr@jump@dec#1#2{%
   \avr@bin@tocount{0#1}{\avr@count@tmpa}%
@@ -635,7 +637,7 @@
 }
 
 % #1 = Value to be reached
-\csdef{avr@instr@11110}#1#2#3#4#5#6#7#8#9\@nnil{
+\csdef{avr@instr@11110}#1#2#3#4#5#6#7#8#9\@nnil{%
   \edef\@@required{\avr@bit@negate #1}%
   \def\@@offset{#2#3#4#5#6#7#8}%
   \def\@@bit{00000#9}%
@@ -645,7 +647,7 @@
   \avr@bin@getbit{\@@sreg}{\@@bit}{\@@found}%
   \avr@count@tmpa=\@@required%
   \avr@count@tmpb=\@@found\relax%
-  \avr@debug{BRB{CS} - (\@@sreg[\@@bit] == \@@required) ? +\@@offset : +0}
+  \avr@debug{BRB{CS} - (\@@sreg[\@@bit] == \@@required) ? +\@@offset : +0}%
   \ifnum \avr@count@tmpa = \avr@count@tmpb%
      \avr@instr@jump@dec{\@@offset}{\avr@count@tmpa}%
      \avr@debug{BRB -- JUMP \the\avr@count@tmpa}%
@@ -657,7 +659,7 @@
 % RJMP
 % #1 = Offset 
 % FIXME latex assembler
-\csdef{avr@instr@1100}#1\@nnil{
+\csdef{avr@instr@1100}#1\@nnil{%
   \avr@instr@rjump@dec{#1}{\avr@count@tmpa}%
   \avr@debug{RJMP \the\avr@count@tmpa}%
   \avr@pc@add{\avr@count@tmpa}%
@@ -676,7 +678,7 @@
   \avr@pc@inc%
   \avr@debug{  done}%
 }
-\csdef{avr@instr@1101}#1\@nnil{
+\csdef{avr@instr@1101}#1\@nnil{%
   \avr@count@tobin@w{\the\avr@pc}{\@@pc}%
   \avr@instr@rjump@dec{#1}{\avr@count@tmpa}%
   \avr@reg@get{\csuse{avr@r24}}{\@@A}%
@@ -688,28 +690,28 @@
 }
 
 \def\avr@instr@ICALL#1{\avr@code@set{1001010100001001}{#1}}
-\csdef{avr@instr@1001010100001001}\@nnil{
+\csdef{avr@instr@1001010100001001}\@nnil{%
   \avr@count@tobin@w{\the\avr@pc}{\@@pc}%
-  \avr@regw@get{\csuse{avr@Z}}{\@@addr}
+  \avr@regw@get{\csuse{avr@Z}}{\@@addr}%
   \avr@bin@tocount{\@@addr}{\avr@addr}%
   \avr@reg@get{\csuse{avr@r24}}{\@@A}%
   \avr@reg@get{\csuse{avr@r25}}{\@@B}%
   \avr@reg@get{\csuse{avr@r26}}{\@@C}%
   \avr@debug{ICALL \the\avr@addr {r24:\@@A} {r25:\@@B} {r26:\@@C}}%
   \avr@CALL@helper{\@@pc}%
-  \avr@pc=\avr@addr
+  \avr@pc=\avr@addr%
 }
 
 \def\avr@instr@IJMP#1{\avr@code@set{1001010000001001}{#1}}
-\csdef{avr@instr@1001010000001001}\@nnil{
+\csdef{avr@instr@1001010000001001}\@nnil{%
   \avr@count@tobin@w{\the\avr@pc}{\@@pc}%
-  \avr@regw@get{\csuse{avr@Z}}{\@@addr}
+  \avr@regw@get{\csuse{avr@Z}}{\@@addr}%
   \avr@bin@tocount{\@@addr}{\avr@addr}%
   \avr@reg@get{\csuse{avr@r24}}{\@@a}%
   \avr@reg@get{\csuse{avr@r25}}{\@@b}%
   \avr@reg@get{\csuse{avr@r26}}{\@@c}%
   \avr@debug{IJMP \the\avr@addr {r24:\@@a} {r25:\@@b} {r26:\@@c}}%
-  \avr@pc=\avr@addr
+  \avr@pc=\avr@addr%
 }
 
 % RET
@@ -719,9 +721,9 @@
 \csdef{avr@instr@1001010100001000}\@nnil{%
   \avr@reg@get{\csuse{avr@r24}}{\@@X}%
   \avr@debug{RET (r24=\@@X)}%
-  \advance\avr@stackptr by 1\relax
+  \advance\avr@stackptr by 1\relax%
   \avr@mem@get{\the\avr@stackptr}{\@@high}%
-  \advance\avr@stackptr by 1\relax
+  \advance\avr@stackptr by 1\relax%
   \avr@mem@get{\the\avr@stackptr}{\@@low}%
   \avr@bin@tocount{\@@high \@@low}{\avr@pc}%
   \avr@pc@inc\relax%
@@ -737,7 +739,7 @@
 \csdef{avr@instr@001011}#1#2#3#4#5#6#7\@nnil{%
   \avr@reg@get{#1#7}{\avr@Rr}%
   \avr@reg@set{\avr@Rr}{#2#3#4#5#6}%
-  \avr@debug{MOV - #2#3#4#5#6 <- #1#7(=\avr@Rr)}
+  \avr@debug{MOV - #2#3#4#5#6 <- #1#7(=\avr@Rr)}%
   \avr@pc@inc%
 }
 
@@ -752,7 +754,7 @@
   \avr@reg@set{\avr@Rr}{#1#2#3#40}%
   \avr@reg@get{#51}{\avr@Rd}%
   \avr@reg@set{\avr@Rd}{#1#2#3#41}%
-  \avr@debug{MOV - #1#2#3#4[01] <- #5[01](=\avr@Rr:\avr@Rd)}
+  \avr@debug{MOV - #1#2#3#4[01] <- #5[01](=\avr@Rr:\avr@Rd)}%
   \avr@pc@inc%
 }
 
@@ -993,14 +995,14 @@
 \def\avr@instr@LDS#1#2#3{%
   \avr@code@set{1001000#20000}{#1}%
   \avr@count@tmpa=#1%
-  \advance \avr@count@tmpa by 1\relax
+  \advance \avr@count@tmpa by 1\relax%
   \avr@code@set{#3}{\the\avr@count@tmpa}%
 }
 
 \def\avr@instr@STS#1#2#3{%
   \avr@code@set{1001001#20000}{#1}%
   \avr@count@tmpa=#1%
-  \advance \avr@count@tmpa by 1\relax
+  \advance \avr@count@tmpa by 1\relax%
   \avr@code@set{#3}{\the\avr@count@tmpa}%
 }
 
@@ -1263,7 +1265,7 @@
 \def\avr@skip@instr@eq#1#2{%
   \ifdefstrequal{#1}{#2}{%
      \avr@pc@inc%
-     \avr@instr@length{\the\avr@pc}{\@@length}
+     \avr@instr@length{\the\avr@pc}{\@@length}%
      \avr@debug{SKIP (\@@length) instruction}%
      \avr@pc@add{\@@length}%
   }{%
@@ -1375,8 +1377,8 @@
 \csdef{avr@instr@100111}#1#2#3#4#5#6#7\@nnil{%
   \avr@reg@get{#1#7}{\avr@Rr}%
   \avr@reg@get{#2#3#4#5#6}{\avr@Rd}%
-  \avr@bin@tocount{\avr@Rr}{\avr@MUL@A}
-  \avr@bin@tocount{\avr@Rd}{\avr@MUL@B}
+  \avr@bin@tocount{\avr@Rr}{\avr@MUL@A}%
+  \avr@bin@tocount{\avr@Rd}{\avr@MUL@B}%
   \avr@debug{MUL - \the\avr@MUL@A * \the\avr@MUL@B}%
   \multiply \avr@MUL@A by \avr@MUL@B\relax%
   \avr@count@tobin@w{\avr@MUL@A}{\avr@Rx}%

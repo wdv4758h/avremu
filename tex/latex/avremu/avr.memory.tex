@@ -266,7 +266,7 @@
 }
 %% RAM
 \newcount\avr@stackptr
-\def\avr@stack@init{
+\def\avr@stack@init{%
   \avr@stackptr=0%
 }
 
@@ -283,20 +283,20 @@
   \avr@count@tobin@w{\avr@stackptr}{\@@stack}%
   \avr@bin@word@high{\@@stack}{\@@high}%
   \avr@bin@tocount{\@@high #1}{\avr@stackptr}%
-  \avr@debug{  SP=\the\avr@stackptr}
+  \avr@debug{  SP=\the\avr@stackptr}%
 }
 
 \def\avr@stack@SPH@set#1{%
   \avr@count@tobin@w{\avr@stackptr}{\@@stack}%
   \avr@bin@word@low{\@@stack}{\@@low}%
   \avr@bin@tocount{#1\@@low}{\avr@stackptr}%
-  \avr@debug{  SP=\the\avr@stackptr}
+  \avr@debug{  SP=\the\avr@stackptr}%
 }
 
 \def\avr@mem@init#1{%
   \avr@count@tmpa = #1\relax
   \def\avr@mem@init@helper{%
-    \ifnum \avr@count@tmpa > 0
+    \ifnum \avr@count@tmpa > 0%
        \csxdef{avr@mem@\the\avr@count@tmpa}{00000000}%
        \advance \avr@count@tmpa by -1\relax%
     \else%

@@ -2,6 +2,14 @@
 \ProvidesPackage{avremu} [2014/10/09 v0.1 avremu]
 \RequirePackage{etoolbox}
 \RequirePackage{tabularx}
+\RequirePackage{kvoptions}
+
+\SetupKeyvalOptions{
+  family=avr,
+  prefix=avr@
+}
+\DeclareBoolOption{debug}
+\ProcessKeyvalOptions*
 
 \input{avr.numbers}
 \input{avr.binary}
@@ -11,6 +19,11 @@
 \input{avr.io}
 \input{avr.testsuite}
 
+\ifavr@debug
+  \relax
+\else
+  \def\avr@debug#1{}
+\fi
 
 \newcommand{\useavremulibrary}[1]{
   \def\do##1{%
