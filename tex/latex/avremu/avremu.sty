@@ -8,3 +8,19 @@
 \input{avr.instr}
 \input{avr.io}
 \input{avr.testsuite}
+
+
+\newcommand{\useavremulibrary}[1]{
+  \def\do##1{%
+    \IfFileExists{##1}{%
+      \csedef{avr@atcode}{\the\catcode`\@}%
+      \makeatletter%
+      \input{##1}\relax%
+      \catcode`\@=\csname avr@atcode\endcsname%
+    }{%
+      \errmessage{avremu: Cannot find library ##1}%
+    }%
+  }%
+  \edef\@tempa{#1}%
+  \expandafter\docsvlist\expandafter{\@tempa}%
+}

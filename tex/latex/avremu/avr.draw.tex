@@ -2,9 +2,6 @@
 % We define 2 IO Registers to communicate from AVR to the Drawing
 % mechanism
 
-\usepackage{tikz}
-
-
 \newcount\avr@draw@x
 \newcount\avr@draw@y
 \newcount\avr@draw@maxx
@@ -77,21 +74,58 @@
 
 \newcommand{\avrdrawiter}[1]{%
   \avr@draw@x=0%
-  \loop%
-     \unless\ifnum \avr@draw@x > \avr@draw@maxx
-     \avr@draw@y=0%
-     {\loop%
-        \unless\ifnum \avr@draw@y > \avr@draw@maxy
-        \ifcsdef{avr@draw@\the\avr@draw@x @\the\avr@draw@y}{%
-          #1{\the\avr@draw@x}{\the\avr@draw@y}{\csuse{avr@draw@\the\avr@draw@x @\the\avr@draw@y}}%
-        }{}%
-        \advance \avr@draw@y by 1\relax%
-     \repeat}%
-     \advance \avr@draw@x by 1\relax%
-  \repeat%
+  \def\avr@iter@yloop{%
+    \avr@draw@x=0%
+    \ifnum \avr@draw@y > \avr@draw@maxy%
+       \let\avr@iter@yloop=\relax%
+    \else%
+       \let\avr@iter@xloop@rec=\avr@iter@xloop%
+       \avr@iter@xloop\relax%
+       \advance \avr@draw@y by 1\relax%
+    \fi%
+    \avr@iter@yloop%
+  }%
+  \def\avr@iter@xloop{%
+    \ifnum \avr@draw@x > \avr@draw@maxx%
+       \let\avr@iter@xloop@rec=\relax%
+    \else%
+       \ifcsdef{avr@draw@\the\avr@draw@x @\the\avr@draw@y}{%
+         #1 {\the\avr@draw@x}{\the\avr@draw@y}{\csuse{avr@draw@\the\avr@draw@x @\the\avr@draw@y}}%
+        }{% Dot not defined
+        }%
+       \advance \avr@draw@x by 1\relax%
+    \fi%
+    \avr@iter@xloop@rec%
+  }%
+  \avr@iter@yloop%
 }
-  
 
+\newcommand{\avrdrawSize}[2]{%
+  \avr@count@tmpa=\avr@draw@maxx%
+  \advance \avr@count@tmpa by 1\relax%
+  \edef#1{\the\avr@count@tmpa}%
+  \avr@count@tmpa=\avr@draw@maxy%
+  \advance \avr@count@tmpa by 1\relax%
+  \edef#2{\the\avr@count@tmpa}%
+}
+
+\newwrite\avr@file%
+
+\newcommand{\avrdrawppm}[1]{  
+  % Dump to .ppm file
+  \immediate\openout\avr@file=#1%
+  \immediate\write\avr@file{P3}%
+  \avrdrawSize{\x}{\y}%
+  \immediate\write\avr@file{\x \space \y \space 255}%
+  \def\removecomma##1,##2,##3,{##1 ##2 ##3}%
+  \newcommand{\avr@draw@ppm}[3]{%
+    \edef\@tempa{##3}%
+    \edef\@tempa{\expandafter \removecomma \@tempa,}%
+    \expandafter\immediate\expandafter\write\expandafter\avr@file\expandafter{\@tempa}%
+  }%
+  \avrdrawiter{\avr@draw@ppm}%
+  \immediate\closeout\avr@file%
+}
 
 %%% Local Variables: 
 %%% mode: latex

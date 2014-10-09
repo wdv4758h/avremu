@@ -54,10 +54,14 @@
 
 \def\avr@compile#1#2{%
   \ifnum\pdfshellescape=1%
+     \immediate\write18{rm #1.hex #1.elf}%
      \immediate\write18{avr-gcc -o #1.elf #1 #2}%
      \immediate\write18{avr-objcopy -O ihex -R .eeprom #1.elf #1.hex}%
+     \IfFileExists{#1.hex}{}{%
+       \errmessage{avremu: Compilation of Source code failed (#1)}%
+     }%
   \else%
-     \typeout{avr@compile: --shell-escape is disabled}%
+     \errmessage{avremu: --shell-escape is disabled; cannot compile}%
   \fi%
 }
 
@@ -66,6 +70,15 @@
   \avr@compile{#2}{#1}%
   \avr@ihex@load{#2.hex}%
 }
+
+\newcommand{\avrcompile}[2][-Os -mmcu=atmega8]{%
+  \avr@compile{#2}{#1}%
+}
+
+\newcommand{\avrloadihex}[1]{%
+  \avr@ihex@load{#1}%
+}
+
 
 %%% Local Variables: 
 %%% mode: latex

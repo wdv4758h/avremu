@@ -68,6 +68,9 @@ int main() {
     uint8_t i;
     for (hy=1;hy<=hyres;hy++)  {
         for (hx=1;hx<=hxres;hx++)  {
+            setcolor(hx * 100, 255, 0);
+            dot(hx-1, hy-1);
+            continue;
             cx = (((float)hx)/((float)hxres)-0.5)/magnify*3.0-0.7;
             cy = (((float)hy)/((float)hyres)-0.5)/magnify*3.0;
             cx += xdelta;
@@ -104,30 +107,14 @@ int main() {
   check-start:
   \def\avr@debug#1{}
 
-  \newcommand{\mydot}[3]{%
-     \definecolor{avrfill}{RGB}{#3}%
-     \node[minimum size = 1mm,%
-           anchor=north west,
-           inner sep=0,
-           draw=avrfill,fill=avrfill]
-           at (#1 mm,#2 mm) {};%
-  }
-
   \avr@instr@run
 
-  % Dump to .dat file
-  \newwrite\coords
-  \openout\coords=\jobname.coords.dat
-  \newcommand{\mydump}[3]{%
-    \edef\@tempa{#1,#2,#3}%
-    \expandafter\write\expandafter\coords\expandafter{\@tempa}%
-  }
-  \avrdrawiter{\mydump}
-  \closeout\coords
 
-  \begin{tikzpicture}[every node/.style={draw}]
-      \avrdrawiter{\mydot}
-  \end{tikzpicture}
+  \avrdrawppm{mandelbrot.ppm}
+
+  \immediate\write18{convert mandelbrot.ppm mandelbrot.png}
+  
+  \includegraphics[width=\linewidth]{mandelbrot.png}
 
   check-end:
 */

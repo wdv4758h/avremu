@@ -15,14 +15,14 @@
 }
 
 \csdef{avr@instr@10111}#1#2#3#4#5#6#7#8\@nnil{%
-  \def\@@A{#1#2#8}%
+  \def\@@IOA{#1#2#8}%
   \avr@reg@get{#3#4#5#6#7}{\avr@Rr}%
-  \avr@debug{OUT \@@A <- \avr@Rr}%
-  \avr@io@set{\avr@Rr}{\@@A}%
+  \avr@debug{OUT \@@IOA <- \avr@Rr}%
+  \avr@io@set{\avr@Rr}{\@@IOA}%
   \avr@pc@inc%
 }
 
-% OUT
+% IN
 \def\avr@instr@IN#1#2#3{% A, R
   \def\@@A{#2}
    \avr@bin@msb@del{\@@A}{\@@A}{\@@a}%
@@ -61,11 +61,11 @@
 }
 
 \def\avr@io@set@default#1#2{%
-  \avr@error{IO Port #2 is not defined (OUT #1)}%
+  \avr@error{IO Port #2 is not defined (OUT <-#1)}%
 }
 
 \def\avr@io@get@default#1#2{%
-  \avr@error{IO Port #1 is not defined (IN -> #2)}%
+  \avr@error{IO Port #1 is not defined (IN ->#2)}%
 }
 
 \csdef{avr@io@111111@set}#1{%
