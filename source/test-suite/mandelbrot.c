@@ -60,8 +60,8 @@ int main() {
     uint8_t hx,hy;
 #define itermax  100 /* how many iterations to do    */
 #define magnify  4.0 /* no magnification         */
-#define hxres    128   /* horizonal resolution      */
-#define hyres    128   /* vertical resolution       */
+#define hxres    250   /* horizonal resolution      */
+#define hyres    250   /* vertical resolution       */
 #define ydelta 0
 #define xdelta -0.75
 
