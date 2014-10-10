@@ -1,4 +1,4 @@
-avr-tex: An AVR Emulator written in pure LaTeX
+avremu: An AVR Emulator written in pure LaTeX
 ======================================================
 
 ![A Mandelbrot Set. The image took 6 hours to be calculated](imgs/mandelbrot-128x128.png)[5]
@@ -28,7 +28,7 @@ future, if you start this. But, we can use a normal C compiler to
 compile the C code to some simple platform. Like AVR[4]. Since I have
 other things to do than writing an AVR Emulator in TeX, here it is!
 
-The newest source can be found at https://gitlab.brokenpipe.de/stettberger/avr_tex.
+The newest source can be found at https://gitlab.brokenpipe.de/stettberger/avremu
 
 ## You are writing an CPU emulator in TeX, the TYPESETTING system? ##
 
