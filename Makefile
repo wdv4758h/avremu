@@ -12,8 +12,8 @@ test-simple: source/simple-testsuite.tex
 test-%: source/test-suite/%.c
 	cd source/test-suite; ./test-suite single $(shell basename $<)
 
-avremu.tds.zip: source/avremu.pdf
-	rm -rf avremu avremu.tds.zip
+avremu.zip: source/avremu.pdf
+	rm -rf avremu avremu.tds.zip avremu.zip
 	mkdir avremu
 	# TeX Directory
 	mkdir -p  avremu/tex/latex/avremu
@@ -31,9 +31,20 @@ avremu.tds.zip: source/avremu.pdf
 	# Documenation directory
 	mkdir -p avremu/doc/latex/avremu
 	cp source/avremu.pdf avremu/doc/latex/avremu
-	cp README.md avremu/doc/latex/avremu/README
+	cp README avremu/doc/latex/avremu/README
 	cd avremu; zip -r ../avremu.tds.zip *
+	rm -rf avremu
+	# Assemble a Flat version
+	mkdir avremu
+	cp tex/latex/avremu/*.tex avremu/
+	cp tex/latex/avremu/*.sty avremu/
+	cp source/simple-testsuite.tex avremu/
+	cp source/avremu.tex avremu/
+	cp source/avremu.pdf avremu/
+
+	cp README avremu/README
+	zip -r avremu.zip avremu/ avremu.tds.zip
 	rm -rf avremu
 
 
-.PHONY: test-simple source/avremu.pdf avremu.tds.zip
+.PHONY: test-simple source/avremu.pdf avremu.zip
