@@ -1,7 +1,7 @@
 avremu: An AVR Emulator written in pure LaTeX
 ======================================================
 
-![A Mandelbrot Set. The image took 6 hours to be calculated](imgs/mandelbrot-128x128.png)[5]
+![A Mandelbrot Set. The image took 6 hours to be calculated](imgs/mandelbrot-250x250.png)[5]
 
 LaTeX is known as a typesetting system. But the underlying TeX system
 is a powerful macro processor. In fact, TeX is a Turing-complete
@@ -69,4 +69,4 @@ than the actual hardware with the highest supported clock rate.
 
 [4] http://en.wikipedia.org/wiki/Atmel_AVR
 
-[5] A Mandelbrot Set. The image took 6 hours to be calculated
+[5] A Mandelbrot Set. The image took 44 hours to be calculated
