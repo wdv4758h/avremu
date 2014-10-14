@@ -106,7 +106,7 @@ do_test()
 
 
 	# grab the actual output & exit value
-	stdbuf -oL pdflatex -halt-on-error -shell-escape "$file".tex 1> $file.output 2> $file.error
+	pdflatex -halt-on-error -shell-escape "$file".tex 1> $file.output 2> $file.error
 	actual_exit_value=$?
     rm -f *.log *.aux 
 
