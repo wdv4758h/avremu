@@ -29,7 +29,6 @@ avremu.zip: source/avremu.pdf
 	cp source/test-suite/HEADER avremu/source/latex/avremu/test-suite
 	cp  source/simple-testsuite.tex avremu/source/latex/avremu/
 	cp source/avremu.tex avremu/source/latex/avremu/
-	cp -L source/mandelbrot.png avremu/source/latex/avremu/
 	# Documenation directory
 	mkdir -p avremu/doc/latex/avremu
 	cp source/avremu.pdf avremu/doc/latex/avremu
@@ -43,9 +42,11 @@ avremu.zip: source/avremu.pdf
 	cp source/simple-testsuite.tex avremu/
 	cp source/avremu.tex avremu/
 	cp source/avremu.pdf avremu/
-	cp -L source/mandelbrot.png avremu/
-	cp source/test-suite/mandelbrot.c avremu/
-
+	cp -r imgs avremu
+	mkdir avremu/test-suite
+	cp source/test-suite/test-suite avremu/test-suite
+	cp source/test-suite/*.c avremu/test-suite
+	cp source/test-suite/HEADER source/test-suite/FOOTER avremu/test-suite
 	cp README avremu/README
 	zip -r avremu.zip avremu/ avremu.tds.zip
 	rm -rf avremu

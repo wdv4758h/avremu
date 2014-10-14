@@ -6,6 +6,8 @@ default_path=".."
 tests_list=`find . -name '*.c' | sed -e 's#^\./\(.*\)#\1#' | sort`
 prog_name=`basename $0`
 
+export TEXINPUTS=$PWD/..//:$TEXINPUTS
+
 # counts:
 #	- tests that have not been converted to test-suite format
 #	- tests that passed
